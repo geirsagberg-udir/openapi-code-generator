@@ -1365,7 +1365,7 @@ public class CSharpCodeEmitterTests
     }
 
     [Fact]
-    public void Emit_DefaultDateTimeString_EmitsDateTimeParse()
+    public void Emit_DefaultDateTimeString_EmitsDateTimeOffsetParse()
     {
         var schemas = new Dictionary<string, IOpenApiSchema>
         {
@@ -1386,12 +1386,12 @@ public class CSharpCodeEmitterTests
 
         string result = Generate(schemas);
 
-        Assert.Contains("DateTime.Parse(", result, StringComparison.Ordinal);
-        Assert.Contains("DateTimeStyles.AdjustToUniversal", result, StringComparison.Ordinal);
+        Assert.Contains("DateTimeOffset.Parse(", result, StringComparison.Ordinal);
+        Assert.Contains("DateTimeStyles.RoundtripKind", result, StringComparison.Ordinal);
     }
 
     [Fact]
-    public void Emit_DefaultDateString_EmitsDateParse()
+    public void Emit_DefaultDateString_EmitsDateOnlyParse()
     {
         var schemas = new Dictionary<string, IOpenApiSchema>
         {
@@ -1412,11 +1412,11 @@ public class CSharpCodeEmitterTests
 
         string result = Generate(schemas);
 
-        Assert.Contains("DateTime.Parse(\"2025-06-15\")", result, StringComparison.Ordinal);
+        Assert.Contains("DateOnly.ParseExact(\"2025-06-15\", \"yyyy-MM-dd\", CultureInfo.InvariantCulture)", result, StringComparison.Ordinal);
     }
 
     [Fact]
-    public void Emit_DefaultTimeString_EmitsTimeSpanParse()
+    public void Emit_DefaultTimeString_EmitsTimeOnlyParse()
     {
         var schemas = new Dictionary<string, IOpenApiSchema>
         {
@@ -1437,7 +1437,7 @@ public class CSharpCodeEmitterTests
 
         string result = Generate(schemas);
 
-        Assert.Contains("TimeSpan.Parse(\"12:30:00\")", result, StringComparison.Ordinal);
+        Assert.Contains("TimeOnly.Parse(\"12:30:00.0000000\", CultureInfo.InvariantCulture)", result, StringComparison.Ordinal);
     }
 
     [Fact]

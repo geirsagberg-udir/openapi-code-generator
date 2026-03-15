@@ -552,19 +552,19 @@ internal class CSharpCodeEmitter
                     return $"\"{strVal.Replace("\"", "\\\"", StringComparison.Ordinal)}\"";
                 }
 
-                if (schema.Format == "date-time" && DateTime.TryParse(strVal, null, DateTimeStyles.AdjustToUniversal, out DateTime dt))
+                if (schema.Format == "date-time" && DateTimeOffset.TryParse(strVal, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTimeOffset dto))
                 {
-                    return $"DateTime.Parse(\"{dt.ToString("o", CultureInfo.InvariantCulture)}\", null, DateTimeStyles.AdjustToUniversal)";
+                    return $"DateTimeOffset.Parse(\"{dto.ToString("O", CultureInfo.InvariantCulture)}\", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind)";
                 }
 
-                if (schema.Format == "date" && DateTime.TryParse(strVal, null, DateTimeStyles.None, out DateTime d))
+                if (schema.Format == "date" && DateOnly.TryParse(strVal, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateOnly dateOnly))
                 {
-                    return $"DateTime.Parse(\"{d:yyyy-MM-dd}\")";
+                    return $"DateOnly.ParseExact(\"{dateOnly:yyyy-MM-dd}\", \"yyyy-MM-dd\", CultureInfo.InvariantCulture)";
                 }
 
-                if (schema.Format == "time" && TimeSpan.TryParse(strVal, out TimeSpan ts))
+                if (schema.Format == "time" && TimeOnly.TryParse(strVal, CultureInfo.InvariantCulture, DateTimeStyles.None, out TimeOnly timeOnly))
                 {
-                    return $"TimeSpan.Parse(\"{ts:c}\")";
+                    return $"TimeOnly.Parse(\"{timeOnly.ToString("O", CultureInfo.InvariantCulture)}\", CultureInfo.InvariantCulture)";
                 }
 
                 if (schema.Format == "uuid" && Guid.TryParse(strVal, out Guid guid))
