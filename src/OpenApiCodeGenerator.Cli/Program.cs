@@ -91,6 +91,28 @@ static async Task<int> RunAsync(string[] args)
         return 1;
     }
 
+    var options = new GeneratorOptions
+    {
+        Namespace = namespaceName,
+        GenerateDocComments = docComments,
+        GenerateFileHeader = fileHeader,
+        ModelPrefix = modelPrefix,
+        DefaultNonNullable = defaultNonNullable,
+        UseImmutableArrays = immutableArrays,
+        UseImmutableDictionaries = immutableDictionaries,
+        AddDefaultValuesToProperties = addDefaultValuesToProperties,
+    };
+
+    try
+    {
+        options.Validate();
+    }
+    catch (ArgumentException ex)
+    {
+        await Console.Error.WriteLineAsync($"Error: {ex.Message}").ConfigureAwait(false);
+        return 1;
+    }
+
     // Support reading from URL
     Stream inputStream;
     HttpClient? httpClient = null;
@@ -111,23 +133,13 @@ static async Task<int> RunAsync(string[] args)
             await Console.Error.WriteLineAsync($"Error: Input file not found: {inputPath}").ConfigureAwait(false);
             return 1;
         }
-        using Stream _ = inputStream = File.OpenRead(inputPath);
+#pragma warning disable CA2000 // Dispose objects before losing scope
+        inputStream = File.OpenRead(inputPath);
+#pragma warning restore CA2000 // Dispose objects before losing scope
     }
 
     try
     {
-        var options = new GeneratorOptions
-        {
-            Namespace = namespaceName,
-            GenerateDocComments = docComments,
-            GenerateFileHeader = fileHeader,
-            ModelPrefix = modelPrefix,
-            DefaultNonNullable = defaultNonNullable,
-            UseImmutableArrays = immutableArrays,
-            UseImmutableDictionaries = immutableDictionaries,
-            AddDefaultValuesToProperties = addDefaultValuesToProperties,
-        };
-
         var generator = new CSharpSchemaGenerator(options);
         string code = generator.GenerateFromStream(inputStream);
 
@@ -147,6 +159,11 @@ static async Task<int> RunAsync(string[] args)
         }
 
         return 0;
+    }
+    catch (ArgumentException ex)
+    {
+        await Console.Error.WriteLineAsync($"Error: {ex.Message}").ConfigureAwait(false);
+        return 1;
     }
     catch (InvalidOperationException ex)
     {

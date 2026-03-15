@@ -12,7 +12,7 @@ internal static partial class NameHelper
     private const string UnknownTypeName = "UnknownType";
     private const string UnknownName = "Unknown";
 
-    private static readonly HashSet<string> CSharpKeywords =
+    internal static HashSet<string> CSharpKeywords { get; } =
     [
         "abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char",
         "checked", "class", "const", "continue", "decimal", "default", "delegate",
@@ -290,12 +290,12 @@ internal static partial class NameHelper
         return 2;
     }
 
-    private static bool IsIdentifierStart(char value)
+    internal static bool IsIdentifierStart(char value)
     {
         return value == '_' || char.IsLetter(value);
     }
 
-    private static bool IsIdentifierPart(char value)
+    internal static bool IsIdentifierPart(char value)
     {
         return value == '_' || char.IsLetterOrDigit(value);
     }
