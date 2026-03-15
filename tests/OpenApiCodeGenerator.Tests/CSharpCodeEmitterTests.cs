@@ -189,6 +189,53 @@ public class CSharpCodeEmitterTests
         Assert.Contains("public Address? AlternativeAddress { get; init; }", result, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void Emit_WithModelPrefix_PrefixesGeneratedTypeDeclarationsAndReferences()
+    {
+        var schemas = new Dictionary<string, IOpenApiSchema>
+        {
+            ["Order"] = new OpenApiSchema
+            {
+                Type = JsonSchemaType.Object,
+                Required = new HashSet<string> { "status", "address" },
+                Properties = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["status"] = new OpenApiSchema
+                    {
+                        Type = JsonSchemaType.String,
+                        Enum = new List<JsonNode>
+                        {
+                            (JsonNode)"pending",
+                            (JsonNode)"complete"
+                        }
+                    },
+                    ["address"] = new OpenApiSchemaReference("Address")
+                }
+            },
+            ["Address"] = new OpenApiSchema
+            {
+                Type = JsonSchemaType.Object,
+                Properties = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["city"] = new OpenApiSchema { Type = JsonSchemaType.String }
+                }
+            }
+        };
+
+        string result = Generate(schemas, new GeneratorOptions
+        {
+            GenerateFileHeader = false,
+            Namespace = "TestModels",
+            ModelPrefix = "Api"
+        });
+
+        Assert.Contains("public enum ApiStatus", result, StringComparison.Ordinal);
+        Assert.Contains("public record ApiOrder", result, StringComparison.Ordinal);
+        Assert.Contains("public record ApiAddress", result, StringComparison.Ordinal);
+        Assert.Contains("public required ApiStatus Status { get; init; }", result, StringComparison.Ordinal);
+        Assert.Contains("public required ApiAddress Address { get; init; }", result, StringComparison.Ordinal);
+    }
+
     #endregion
 
     #region Enum Generation

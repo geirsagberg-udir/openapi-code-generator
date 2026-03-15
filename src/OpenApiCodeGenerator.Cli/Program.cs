@@ -23,6 +23,7 @@ static async Task<int> RunAsync(string[] args)
     string? inputPath = null;
     string? outputPath = null;
     string namespaceName = "GeneratedModels";
+    string? modelPrefix = null;
     bool docComments = true;
     bool fileHeader = true;
     bool defaultNonNullable = true;
@@ -42,6 +43,9 @@ static async Task<int> RunAsync(string[] args)
                 break;
             case "--namespace" or "-n":
                 namespaceName = GetNextArg(args, ref i, "--namespace");
+                break;
+            case "--model-prefix":
+                modelPrefix = GetNextArg(args, ref i, "--model-prefix");
                 break;
             case "--no-doc-comments":
                 docComments = false;
@@ -117,6 +121,7 @@ static async Task<int> RunAsync(string[] args)
             Namespace = namespaceName,
             GenerateDocComments = docComments,
             GenerateFileHeader = fileHeader,
+            ModelPrefix = modelPrefix,
             DefaultNonNullable = defaultNonNullable,
             UseImmutableArrays = immutableArrays,
             UseImmutableDictionaries = immutableDictionaries,
@@ -192,6 +197,7 @@ static void PrintUsage()
             -i, --input <path>          Input OpenAPI spec file or URL
             -o, --output <path>         Output C# file path
             -n, --namespace <name>      C# namespace (default: GeneratedModels)
+                --model-prefix <prefix> Prefix every generated model type name
                 --no-doc-comments       Disable XML doc comment generation
                 --no-header             Disable auto-generated file header
                 --no-default-non-nullable  Don't treat defaults as non-nullable
@@ -203,7 +209,7 @@ static void PrintUsage()
 
         EXAMPLES:
             openapi-codegen petstore.yaml -o Models.cs
-            openapi-codegen https://petstore3.swagger.io/api/v3/openapi.json -o PetStore.cs -n MyApp.Models
+            openapi-codegen https://petstore3.swagger.io/api/v3/openapi.json -o PetStore.cs -n MyApp.Models --model-prefix PetStore
             openapi-codegen spec.yaml --mutable-arrays --mutable-dictionaries
         """);
 }

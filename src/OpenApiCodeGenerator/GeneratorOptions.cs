@@ -11,6 +11,12 @@ public sealed class GeneratorOptions
     public string Namespace { get; init; } = "GeneratedModels";
 
     /// <summary>
+    /// Prefix applied to every generated model type name.
+    /// Must start with a letter or underscore and contain only letters, digits, or underscores.
+    /// </summary>
+    public string? ModelPrefix { get; init; }
+
+    /// <summary>
     /// When true, generate XML documentation comments from OpenAPI descriptions.
     /// </summary>
     public bool GenerateDocComments { get; init; } = true;
