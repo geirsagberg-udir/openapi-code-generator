@@ -13,7 +13,7 @@ public class CSharpSchemaGeneratorTests
         return Path.Combine(AppContext.BaseDirectory, "Fixtures", fileName);
     }
 
-    private static string GetSerializationOutput(string generatedCode, string programSource)
+    private static string[] GetSerializationLines(string generatedCode, string programSource)
     {
         string tempRoot = Path.Combine(
             AppContext.BaseDirectory,
@@ -49,7 +49,7 @@ public class CSharpSchemaGeneratorTests
             StartInfo = new ProcessStartInfo
             {
                 FileName = "dotnet",
-                Arguments = $"run --project \"{projectPath}\"",
+                Arguments = $"run --project \"{projectPath}\" -v q --nologo",
                 WorkingDirectory = tempRoot,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -67,7 +67,8 @@ public class CSharpSchemaGeneratorTests
             process.ExitCode == 0,
             $"Generated serialization harness failed with exit code {process.ExitCode}.{Environment.NewLine}STDOUT:{Environment.NewLine}{standardOutput}{Environment.NewLine}STDERR:{Environment.NewLine}{standardError}");
 
-        return standardOutput.Trim();
+        return standardOutput
+            .Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     }
 
     #region Comprehensive API Fixture
@@ -291,7 +292,7 @@ public class CSharpSchemaGeneratorTests
                 });
 
                 string generatedCode = generator.GenerateFromText(spec);
-                string output = GetSerializationOutput(generatedCode, """
+                string[] lines = GetSerializationLines(generatedCode, """
                         using System.Text.Json;
                         using GeneratedModels;
 
@@ -300,10 +301,8 @@ public class CSharpSchemaGeneratorTests
                         Console.WriteLine(JsonSerializer.Serialize(alert));
                         """);
 
-                string[] lines = output.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-
-                Assert.Equal("2024-01-02T03:04:05.0000000+00:00", lines[0]);
-                Assert.Equal("{\"createdAt\":\"2024-01-02T03:04:05+00:00\"}", lines[1]);
+                Assert.Equal("2024-01-02T03:04:05.0000000+00:00", lines[^2]);
+                Assert.Equal("{\"createdAt\":\"2024-01-02T03:04:05+00:00\"}", lines[^1]);
         }
 
         [Fact]
@@ -340,7 +339,7 @@ public class CSharpSchemaGeneratorTests
                 });
 
                 string generatedCode = generator.GenerateFromText(spec);
-                string output = GetSerializationOutput(generatedCode, """
+                string[] lines = GetSerializationLines(generatedCode, """
                         using System.Text.Json;
                         using GeneratedModels;
 
@@ -349,10 +348,8 @@ public class CSharpSchemaGeneratorTests
                         Console.WriteLine(JsonSerializer.Serialize(user));
                         """);
 
-                string[] lines = output.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-
-                Assert.Equal("7|Ada|Active", lines[0]);
-                Assert.Equal("{\"id\":7,\"name\":\"Ada\",\"status\":\"active\"}", lines[1]);
+                Assert.Equal("7|Ada|Active", lines[^2]);
+                Assert.Equal("{\"id\":7,\"name\":\"Ada\",\"status\":\"active\"}", lines[^1]);
         }
 
             [Fact]
@@ -365,7 +362,7 @@ public class CSharpSchemaGeneratorTests
                 });
 
                 string generatedCode = generator.GenerateFromFile(GetFixturePath("comprehensive-api.json"));
-                string output = GetSerializationOutput(generatedCode, """
+                string[] lines = GetSerializationLines(generatedCode, """
                     using System.Text.Json;
                     using GeneratedModels;
 
@@ -374,10 +371,8 @@ public class CSharpSchemaGeneratorTests
                     Console.WriteLine(JsonSerializer.Serialize(cat));
                     """);
 
-                string[] lines = output.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-
-                Assert.Equal("Milo|cat|True|False", lines[0]);
-                Assert.Equal("{\"indoor\":true,\"declawed\":false,\"name\":\"Milo\",\"petType\":\"cat\"}", lines[1]);
+                Assert.Equal("Milo|cat|True|False", lines[^2]);
+                Assert.Equal("{\"indoor\":true,\"declawed\":false,\"name\":\"Milo\",\"petType\":\"cat\"}", lines[^1]);
             }
 
             [Fact]
@@ -390,7 +385,7 @@ public class CSharpSchemaGeneratorTests
                 });
 
                 string generatedCode = generator.GenerateFromFile(GetFixturePath("comprehensive-api.json"));
-                string output = GetSerializationOutput(generatedCode, """
+                string[] lines = GetSerializationLines(generatedCode, """
                     using System;
                     using System.Text.Json;
                     using GeneratedModels;
@@ -408,11 +403,9 @@ public class CSharpSchemaGeneratorTests
                     }
                     """);
 
-                string[] lines = output.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-
-                Assert.Equal("InvalidOperationException", lines[0]);
-                Assert.Contains("not a supported derived type", lines[1], StringComparison.Ordinal);
-                Assert.Contains("GeneratedModels.Shape", lines[1], StringComparison.Ordinal);
+                Assert.Equal("InvalidOperationException", lines[^2]);
+                Assert.Contains("not a supported derived type", lines[^1], StringComparison.Ordinal);
+                Assert.Contains("GeneratedModels.Shape", lines[^1], StringComparison.Ordinal);
             }
 
             [Fact]
@@ -425,7 +418,7 @@ public class CSharpSchemaGeneratorTests
                 });
 
                 string generatedCode = generator.GenerateFromFile(GetFixturePath("comprehensive-api.json"));
-                string output = GetSerializationOutput(generatedCode, """
+                string[] lines = GetSerializationLines(generatedCode, """
                     using System;
                     using System.Text.Json;
                     using GeneratedModels;
@@ -443,11 +436,9 @@ public class CSharpSchemaGeneratorTests
                     }
                     """);
 
-                string[] lines = output.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-
-                Assert.Equal("InvalidOperationException", lines[0]);
-                Assert.Contains("not a supported derived type", lines[1], StringComparison.Ordinal);
-                Assert.Contains("GeneratedModels.NotificationPreference", lines[1], StringComparison.Ordinal);
+                Assert.Equal("InvalidOperationException", lines[^2]);
+                Assert.Contains("not a supported derived type", lines[^1], StringComparison.Ordinal);
+                Assert.Contains("GeneratedModels.NotificationPreference", lines[^1], StringComparison.Ordinal);
             }
 
         [Fact]
