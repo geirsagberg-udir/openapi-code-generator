@@ -8,10 +8,9 @@ namespace OpenApiCodeGenerator.Tests;
 /// </summary>
 public class TypeResolverTests
 {
-    private static TypeResolver CreateResolver(GeneratorOptions? options = null)
+    private static TypeResolver CreateResolver(GeneratorOptions? options = null, IDictionary<string, IOpenApiSchema>? schemas = null)
     {
-        var schemas = new Dictionary<string, IOpenApiSchema>();
-        return new TypeResolver(options ?? new GeneratorOptions(), schemas);
+        return new TypeResolver(options ?? new GeneratorOptions(), schemas ?? new Dictionary<string, IOpenApiSchema>());
     }
 
     #region Primitive Types
@@ -230,6 +229,24 @@ public class TypeResolverTests
         TypeResolver resolver = CreateResolver();
         var schema = new OpenApiSchemaReference("UserStatus");
         Assert.Equal("UserStatus", resolver.Resolve(schema));
+    }
+
+    [Fact]
+    public void Resolve_ReferenceToTypeAlias_WithInlineOption_ReturnsUnderlyingType()
+    {
+        var schemas = new Dictionary<string, IOpenApiSchema>
+        {
+            ["AlertCreatedAt"] = new OpenApiSchema
+            {
+                Type = JsonSchemaType.String,
+                Format = "date-time"
+            }
+        };
+
+        TypeResolver resolver = CreateResolver(new GeneratorOptions { InlinePrimitiveTypeAliases = true }, schemas);
+        var schema = new OpenApiSchemaReference("AlertCreatedAt");
+
+        Assert.Equal("DateTimeOffset", resolver.Resolve(schema));
     }
 
     #endregion

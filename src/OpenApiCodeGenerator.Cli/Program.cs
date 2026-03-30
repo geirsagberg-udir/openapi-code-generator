@@ -30,6 +30,7 @@ static async Task<int> RunAsync(string[] args)
     bool addDefaultValuesToProperties = true;
     bool immutableArrays = true;
     bool immutableDictionaries = true;
+    bool inlinePrimitiveTypeAliases = false;
 
     for (int i = 0; i < args.Length; i++)
     {
@@ -64,6 +65,9 @@ static async Task<int> RunAsync(string[] args)
                 break;
             case "--mutable-dictionaries":
                 immutableDictionaries = false;
+                break;
+            case "--inline-type-aliases":
+                inlinePrimitiveTypeAliases = true;
                 break;
             default:
                 // Positional: first is input, second is output
@@ -101,6 +105,7 @@ static async Task<int> RunAsync(string[] args)
         UseImmutableArrays = immutableArrays,
         UseImmutableDictionaries = immutableDictionaries,
         AddDefaultValuesToProperties = addDefaultValuesToProperties,
+        InlinePrimitiveTypeAliases = inlinePrimitiveTypeAliases,
     };
 
     try
@@ -221,6 +226,7 @@ static void PrintUsage()
                 --no-add-default-values     Don't add default values from OpenAPI to properties
                 --mutable-arrays        Use List<T> instead of IReadOnlyList<T>
                 --mutable-dictionaries  Use Dictionary<K,V> instead of IReadOnlyDictionary<K,V>
+                --inline-type-aliases   Inline primitive aliases instead of emitting wrapper types
             -v, --version               Show version information
             -h, --help                  Show this help message
 
@@ -228,5 +234,6 @@ static void PrintUsage()
             openapi-codegen petstore.yaml -o Models.cs
             openapi-codegen https://petstore3.swagger.io/api/v3/openapi.json -o PetStore.cs -n MyApp.Models --model-prefix PetStore
             openapi-codegen spec.yaml --mutable-arrays --mutable-dictionaries
+            openapi-codegen spec.yaml --inline-type-aliases
         """);
 }

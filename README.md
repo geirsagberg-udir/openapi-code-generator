@@ -19,7 +19,7 @@
 
 ---
 
-**OpenAPI Code Generator** transforms OpenAPI 3.x specifications into clean, modern C# code — generating records, enums, and type aliases with full nullable reference type support and System.Text.Json serialization out of the box.
+**OpenAPI Code Generator** transforms OpenAPI 3.x specifications into clean, modern C# code — generating records, enums, and primitive type aliases with full nullable reference type support and built-in `System.Text.Json` attributes and converters where needed.
 
 ## Features
 
@@ -90,6 +90,7 @@ OPTIONS:
         --no-add-default-values     Don't add default values from OpenAPI to properties
         --mutable-arrays        Use List<T> instead of IReadOnlyList<T>
         --mutable-dictionaries  Use Dictionary<K,V> instead of IReadOnlyDictionary<K,V>
+        --inline-type-aliases   Inline primitive aliases instead of emitting wrapper types
     -v, --version               Show version information
     -h, --help                  Show this help message
 ```

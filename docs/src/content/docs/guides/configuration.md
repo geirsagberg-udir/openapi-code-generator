@@ -16,6 +16,7 @@ OpenAPI Code Generator provides a rich set of options to customize the generated
 | `AddDefaultValuesToProperties` | `--no-add-default-values` | `true` | Add default values from OpenAPI to properties |
 | `UseImmutableArrays` | `--mutable-arrays` | `true` | Use `IReadOnlyList<T>` |
 | `UseImmutableDictionaries` | `--mutable-dictionaries` | `true` | Use `IReadOnlyDictionary` |
+| `InlinePrimitiveTypeAliases` | `--inline-type-aliases` | `false` | Inline primitive aliases instead of emitting wrapper types |
 
 ## Namespace
 
@@ -123,4 +124,56 @@ public IReadOnlyDictionary<string, object> Metadata { get; init; }
 **Mutable:**
 ```csharp
 public Dictionary<string, object> Metadata { get; init; }
+```
+
+## Primitive Type Aliases
+
+Controls whether primitive component aliases are emitted as wrapper structs or inlined to their underlying primitive types.
+
+**CLI:** Wrapper aliases by default. Use `--inline-type-aliases` to inline them.
+
+**Library:**
+```csharp
+new GeneratorOptions { InlinePrimitiveTypeAliases = true }
+```
+
+**Default output:**
+```csharp
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+file interface IOpenApiGeneratedTypeAlias<TSelf, TValue>
+    where TSelf : struct, IOpenApiGeneratedTypeAlias<TSelf, TValue>
+{
+    static abstract TSelf Create(TValue value);
+
+    TValue Value { get; }
+}
+
+file sealed class OpenApiGeneratedTypeAliasJsonConverter<TAlias, TValue> : JsonConverter<TAlias>
+    where TAlias : struct, IOpenApiGeneratedTypeAlias<TAlias, TValue>
+{
+    public override TAlias Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        TValue value = JsonSerializer.Deserialize<TValue>(ref reader, options)!;
+        return TAlias.Create(value);
+    }
+
+    public override void Write(Utf8JsonWriter writer, TAlias value, JsonSerializerOptions options)
+    {
+        JsonSerializer.Serialize(writer, value.Value, options);
+    }
+}
+
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<AlertCreatedAt, DateTimeOffset>))]
+public readonly record struct AlertCreatedAt(DateTimeOffset Value) : IOpenApiGeneratedTypeAlias<AlertCreatedAt, DateTimeOffset>
+{
+    public static AlertCreatedAt Create(DateTimeOffset value) => new(value);
+}
+```
+
+**Inline output:**
+```csharp
+[JsonPropertyName("createdAt")]
+public required DateTimeOffset CreatedAt { get; init; }
 ```

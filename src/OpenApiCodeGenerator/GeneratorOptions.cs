@@ -49,6 +49,12 @@ public sealed class GeneratorOptions
     public bool AddDefaultValuesToProperties { get; init; } = true;
 
     /// <summary>
+    /// When true, component schemas that would otherwise be emitted as primitive wrapper aliases
+    /// are inlined to their underlying primitive types at usage sites instead.
+    /// </summary>
+    public bool InlinePrimitiveTypeAliases { get; init; }
+
+    /// <summary>
     /// Validates the configured options before generation starts.
     /// </summary>
     /// <exception cref="ArgumentException">Thrown when a configured option is not a valid C# identifier shape.</exception>

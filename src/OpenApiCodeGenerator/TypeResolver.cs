@@ -65,8 +65,7 @@ internal class TypeResolver
         // Handle $ref (Reference) — in v3, references are OpenApiSchemaReference objects
         if (schema is OpenApiSchemaReference schemaRef)
         {
-            string refTypeName = NameHelper.ToTypeName(schemaRef.Reference.Id, _options.ModelPrefix);
-            return nullable ? refTypeName + "?" : refTypeName;
+            return ResolveReferenceType(schemaRef.Reference.Id, nullable);
         }
 
         // Handle allOf composition - if single $ref, treat as that type
@@ -188,8 +187,7 @@ internal class TypeResolver
         OpenApiSchemaReference? refSchema = schema.AllOf!.OfType<OpenApiSchemaReference>().FirstOrDefault();
         if (refSchema != null)
         {
-            string typeName = NameHelper.ToTypeName(refSchema.Reference.Id, _options.ModelPrefix);
-            return nullable ? typeName + "?" : typeName;
+            return ResolveReferenceType(refSchema.Reference.Id, nullable);
         }
 
         // Fallback: pick the first type that has properties
@@ -200,6 +198,30 @@ internal class TypeResolver
         }
 
         return "object";
+    }
+
+    private string ResolveReferenceType(string? referenceId, bool nullable)
+    {
+        if (string.IsNullOrEmpty(referenceId))
+        {
+            return "object";
+        }
+
+        if (_options.InlinePrimitiveTypeAliases &&
+            _allSchemas.TryGetValue(referenceId, out IOpenApiSchema? referencedSchema) &&
+            IsTypeAlias(referencedSchema))
+        {
+            string inlineType = ResolveUnderlyingType(referencedSchema);
+            if (nullable && !inlineType.EndsWith('?'))
+            {
+                inlineType += "?";
+            }
+
+            return inlineType;
+        }
+
+        string refTypeName = NameHelper.ToTypeName(referenceId, _options.ModelPrefix);
+        return nullable ? refTypeName + "?" : refTypeName;
     }
 
     private string ResolveOneOf(IOpenApiSchema schema, bool nullable)
