@@ -120,6 +120,17 @@ Use `Dictionary<string, T>` instead of `IReadOnlyDictionary<string, T>` for map/
 openapi-codegen spec.yaml -o Models.cs --mutable-dictionaries
 ```
 
+### `--inline-type-aliases`
+
+Inline primitive component aliases to their underlying primitive types instead of emitting wrapper alias structs.
+
+- **Default behavior:** emit wrapper aliases with generated `System.Text.Json` converters
+- **With this flag:** use the primitive type directly at usage sites and skip generating the alias wrapper type
+
+```bash
+openapi-codegen spec.yaml -o Models.cs --inline-type-aliases
+```
+
 ### `-v, --version`
 
 Display the tool version and exit.
@@ -164,6 +175,9 @@ openapi-codegen https://example.com/api.json \
   --no-add-default-values \
   --mutable-arrays \
   --mutable-dictionaries
+
+# Inline primitive aliases
+openapi-codegen spec.yaml -o Models.cs --inline-type-aliases
 
 # Preview to stdout
 openapi-codegen spec.yaml | head -50

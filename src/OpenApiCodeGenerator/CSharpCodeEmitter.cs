@@ -41,6 +41,9 @@ internal class CSharpCodeEmitter
     {
         _sb.Clear();
         _indent = 0;
+        bool emitTypeAliasInfrastructure = ShouldEmitTypeAliasInfrastructure();
+        bool emitGenericTypeAliasConverters = ShouldEmitGenericTypeAliasConverters();
+        bool emitBinaryStreamTypeAliasConverters = ShouldEmitBinaryStreamTypeAliasConverters();
 
         if (_options.GenerateFileHeader)
         {
@@ -54,11 +57,29 @@ internal class CSharpCodeEmitter
         AppendLine("#nullable enable");
         AppendLine();
 
+        if (emitTypeAliasInfrastructure)
+        {
+            AppendLine("using System.Text.Json;");
+        }
+
+        if (emitBinaryStreamTypeAliasConverters)
+        {
+            AppendLine("using System;");
+            AppendLine("using System.IO;");
+        }
+
         AppendLine("using System.Text.Json.Serialization;");
         AppendLine();
 
         AppendLine($"namespace {_options.Namespace};");
         AppendLine();
+
+        if (emitTypeAliasInfrastructure)
+        {
+            EmitTypeAliasJsonConverterInfrastructure(
+                emitGenericTypeAliasConverters,
+                emitBinaryStreamTypeAliasConverters);
+        }
 
         // Two-pass type name resolution: detect collisions, assign clean names to
         // the most natural schema name, differentiate others meaningfully.
@@ -76,6 +97,141 @@ internal class CSharpCodeEmitter
         }
 
         return _sb.ToString().TrimEnd() + Environment.NewLine;
+    }
+
+    private bool ShouldEmitTypeAliasInfrastructure()
+    {
+        return !_options.InlinePrimitiveTypeAliases && _allSchemas.Values.Any(TypeResolver.IsTypeAlias);
+    }
+
+    private bool ShouldEmitGenericTypeAliasConverters()
+    {
+        return !_options.InlinePrimitiveTypeAliases && _allSchemas.Values.Any(_typeResolver.UsesGenericTypeAliasJsonConverter);
+    }
+
+    private bool ShouldEmitBinaryStreamTypeAliasConverters()
+    {
+        return !_options.InlinePrimitiveTypeAliases && _allSchemas.Values.Any(_typeResolver.RequiresBinaryStreamTypeAliasJsonConverter);
+    }
+
+    private void EmitTypeAliasJsonConverterInfrastructure(
+        bool emitGenericTypeAliasConverters,
+        bool emitBinaryStreamTypeAliasConverters)
+    {
+        AppendLine("file interface IOpenApiGeneratedTypeAlias<TSelf, TValue>");
+        AppendLine("    where TSelf : struct, IOpenApiGeneratedTypeAlias<TSelf, TValue>");
+        AppendLine("{");
+        _indent++;
+        AppendLine("static abstract TSelf Create(TValue value);");
+        AppendLine();
+        AppendLine("TValue Value { get; }");
+        _indent--;
+        AppendLine("}");
+        AppendLine();
+
+        if (emitGenericTypeAliasConverters)
+        {
+            AppendLine("file sealed class OpenApiGeneratedTypeAliasJsonConverter<TAlias, TValue> : JsonConverter<TAlias>");
+            AppendLine("    where TAlias : struct, IOpenApiGeneratedTypeAlias<TAlias, TValue>");
+            AppendLine("{");
+            _indent++;
+            AppendLine("public override TAlias Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)");
+            AppendLine("{");
+            _indent++;
+            AppendLine("TValue value = JsonSerializer.Deserialize<TValue>(ref reader, options)!;");
+            AppendLine("return TAlias.Create(value);");
+            _indent--;
+            AppendLine("}");
+            AppendLine();
+            AppendLine("public override void Write(Utf8JsonWriter writer, TAlias value, JsonSerializerOptions options)");
+            AppendLine("{");
+            _indent++;
+            AppendLine("JsonSerializer.Serialize(writer, value.Value, options);");
+            _indent--;
+            AppendLine("}");
+            _indent--;
+            AppendLine("}");
+            AppendLine();
+        }
+
+        if (emitBinaryStreamTypeAliasConverters)
+        {
+            AppendLine("file sealed class OpenApiGeneratedBinaryStreamTypeAliasJsonConverter<TAlias> : JsonConverter<TAlias>");
+            AppendLine("    where TAlias : struct, IOpenApiGeneratedTypeAlias<TAlias, Stream>");
+            AppendLine("{");
+            _indent++;
+            AppendLine("public override TAlias Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)");
+            AppendLine("{");
+            _indent++;
+            AppendLine("if (reader.TokenType != JsonTokenType.String)");
+            AppendLine("{");
+            _indent++;
+            AppendLine("throw new JsonException(\"Expected a base64-encoded string for binary content.\");");
+            _indent--;
+            AppendLine("}");
+            AppendLine();
+            AppendLine("string? base64 = reader.GetString();");
+            AppendLine("if (string.IsNullOrEmpty(base64))");
+            AppendLine("{");
+            _indent++;
+            AppendLine("return TAlias.Create(new MemoryStream());");
+            _indent--;
+            AppendLine("}");
+            AppendLine();
+            AppendLine("try");
+            AppendLine("{");
+            _indent++;
+            AppendLine("byte[] bytes = Convert.FromBase64String(base64);");
+            AppendLine("return TAlias.Create(new MemoryStream(bytes, writable: false));");
+            _indent--;
+            AppendLine("}");
+            AppendLine("catch (FormatException exception)");
+            AppendLine("{");
+            _indent++;
+            AppendLine("throw new JsonException(\"Expected a base64-encoded string for binary content.\", exception);");
+            _indent--;
+            AppendLine("}");
+            _indent--;
+            AppendLine("}");
+            AppendLine();
+            AppendLine("public override void Write(Utf8JsonWriter writer, TAlias value, JsonSerializerOptions options)");
+            AppendLine("{");
+            _indent++;
+            AppendLine("Stream stream = value.Value;");
+            AppendLine("long originalPosition = 0;");
+            AppendLine("if (stream.CanSeek)");
+            AppendLine("{");
+            _indent++;
+            AppendLine("originalPosition = stream.Position;");
+            AppendLine("stream.Position = 0;");
+            _indent--;
+            AppendLine("}");
+            AppendLine();
+            AppendLine("try");
+            AppendLine("{");
+            _indent++;
+            AppendLine("using var buffer = new MemoryStream();");
+            AppendLine("stream.CopyTo(buffer);");
+            AppendLine("writer.WriteStringValue(Convert.ToBase64String(buffer.ToArray()));");
+            _indent--;
+            AppendLine("}");
+            AppendLine("finally");
+            AppendLine("{");
+            _indent++;
+            AppendLine("if (stream.CanSeek)");
+            AppendLine("{");
+            _indent++;
+            AppendLine("stream.Position = originalPosition;");
+            _indent--;
+            AppendLine("}");
+            _indent--;
+            AppendLine("}");
+            _indent--;
+            AppendLine("}");
+            _indent--;
+            AppendLine("}");
+            AppendLine();
+        }
     }
 
     #region Inline Enum Resolution
@@ -256,7 +412,10 @@ internal class CSharpCodeEmitter
         }
         else if (TypeResolver.IsTypeAlias(schema))
         {
-            EmitTypeAlias(schemaName, schema, typeName);
+            if (!_options.InlinePrimitiveTypeAliases)
+            {
+                EmitTypeAlias(schemaName, schema, typeName);
+            }
         }
         else if (schema.OneOf is { Count: > 0 } || schema.AnyOf is { Count: > 0 })
         {
@@ -461,12 +620,7 @@ internal class CSharpCodeEmitter
 
         // Resolve the type
         string typeName;
-        if (propertySchema is OpenApiSchemaReference propRef && propRef.Reference.Id is not null)
-        {
-            string refTypeName = NameHelper.ToTypeName(propRef.Reference.Id, _options.ModelPrefix);
-            typeName = isRequired ? refTypeName : refTypeName + "?";
-        }
-        else if (TypeResolver.IsEnum(propertySchema) && !_allSchemas.Values.Contains(propertySchema))
+        if (TypeResolver.IsEnum(propertySchema) && !_allSchemas.Values.Contains(propertySchema))
         {
             // Inline enum — look up the resolved enum type name from the
             // pre-computed inline enum map (handles dedup & conflict resolution).
@@ -652,7 +806,22 @@ internal class CSharpCodeEmitter
         AppendLine($"/// <summary>");
         AppendLine($"/// Type alias for {resolvedType}.");
         AppendLine($"/// </summary>");
-        AppendLine($"public record struct {typeName}({resolvedType} Value);");
+
+        if (!_options.InlinePrimitiveTypeAliases)
+        {
+            string converterType = _typeResolver.RequiresBinaryStreamTypeAliasJsonConverter(schema)
+                ? $"OpenApiGeneratedBinaryStreamTypeAliasJsonConverter<{typeName}>"
+                : $"OpenApiGeneratedTypeAliasJsonConverter<{typeName}, {resolvedType}>";
+
+            AppendLine($"[JsonConverter(typeof({converterType}))]");
+        }
+
+        AppendLine($"public readonly record struct {typeName}({resolvedType} Value) : IOpenApiGeneratedTypeAlias<{typeName}, {resolvedType}>");
+        AppendLine("{");
+        _indent++;
+        AppendLine($"public static {typeName} Create({resolvedType} value) => new(value);");
+        _indent--;
+        AppendLine("}");
         AppendLine();
     }
 

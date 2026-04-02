@@ -493,7 +493,83 @@ public class CSharpCodeEmitterTests
 
         string result = Generate(schemas);
 
-        Assert.Contains("public record struct ObjectId(Guid Value)", result, StringComparison.Ordinal);
+        Assert.Contains("[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<ObjectId, Guid>))]", result, StringComparison.Ordinal);
+        Assert.Contains("public readonly record struct ObjectId(Guid Value) : IOpenApiGeneratedTypeAlias<ObjectId, Guid>", result, StringComparison.Ordinal);
+        Assert.Contains("public static ObjectId Create(Guid value) => new(value);", result, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Emit_TypeAlias_GeneratesConverterInfrastructure()
+    {
+        var schemas = new Dictionary<string, IOpenApiSchema>
+        {
+            ["ObjectId"] = new OpenApiSchema
+            {
+                Type = JsonSchemaType.String,
+                Format = "uuid"
+            }
+        };
+
+        string result = Generate(schemas);
+
+        Assert.Contains("using System.Text.Json;", result, StringComparison.Ordinal);
+        Assert.Contains("file interface IOpenApiGeneratedTypeAlias<TSelf, TValue>", result, StringComparison.Ordinal);
+        Assert.Contains("file sealed class OpenApiGeneratedTypeAliasJsonConverter<TAlias, TValue> : JsonConverter<TAlias>", result, StringComparison.Ordinal);
+        Assert.Contains("where TAlias : struct, IOpenApiGeneratedTypeAlias<TAlias, TValue>", result, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Emit_BinaryTypeAlias_UsesSpecializedStreamConverter()
+    {
+        var schemas = new Dictionary<string, IOpenApiSchema>
+        {
+            ["FileContent"] = new OpenApiSchema
+            {
+                Type = JsonSchemaType.String,
+                Format = "binary"
+            }
+        };
+
+        string result = Generate(schemas);
+
+        Assert.Contains("using System;", result, StringComparison.Ordinal);
+        Assert.Contains("using System.IO;", result, StringComparison.Ordinal);
+        Assert.Contains("file sealed class OpenApiGeneratedBinaryStreamTypeAliasJsonConverter<TAlias> : JsonConverter<TAlias>", result, StringComparison.Ordinal);
+        Assert.Contains("[JsonConverter(typeof(OpenApiGeneratedBinaryStreamTypeAliasJsonConverter<FileContent>))]", result, StringComparison.Ordinal);
+        Assert.Contains("public readonly record struct FileContent(Stream Value) : IOpenApiGeneratedTypeAlias<FileContent, Stream>", result, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Emit_WithInlinePrimitiveTypeAliases_InlinesAliasUsagesAndSkipsWrapperType()
+    {
+        var schemas = new Dictionary<string, IOpenApiSchema>
+        {
+            ["AlertCreatedAt"] = new OpenApiSchema
+            {
+                Type = JsonSchemaType.String,
+                Format = "date-time"
+            },
+            ["Alert"] = new OpenApiSchema
+            {
+                Type = JsonSchemaType.Object,
+                Required = new HashSet<string> { "createdAt" },
+                Properties = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["createdAt"] = new OpenApiSchemaReference("AlertCreatedAt")
+                }
+            }
+        };
+
+        string result = Generate(schemas, new GeneratorOptions
+        {
+            GenerateFileHeader = false,
+            Namespace = "TestModels",
+            InlinePrimitiveTypeAliases = true
+        });
+
+        Assert.DoesNotContain("public record struct AlertCreatedAt(DateTimeOffset Value)", result, StringComparison.Ordinal);
+        Assert.DoesNotContain("IOpenApiGeneratedTypeAlias<", result, StringComparison.Ordinal);
+        Assert.Contains("public required DateTimeOffset CreatedAt { get; init; }", result, StringComparison.Ordinal);
     }
 
     #endregion
@@ -803,10 +879,10 @@ public class CSharpCodeEmitterTests
         string result = Generate(schemas);
 
         // "myString" (more natural) keeps "MyString"
-        Assert.Contains("public record struct MyString(string Value)", result, StringComparison.Ordinal);
+        Assert.Contains("public readonly record struct MyString(string Value) : IOpenApiGeneratedTypeAlias<MyString, string>", result, StringComparison.Ordinal);
 
         // "my_string" (has underscore) gets differentiated
-        Assert.Contains("public record struct MyUnderscoreString(string Value)", result, StringComparison.Ordinal);
+        Assert.Contains("public readonly record struct MyUnderscoreString(string Value) : IOpenApiGeneratedTypeAlias<MyUnderscoreString, string>", result, StringComparison.Ordinal);
 
         // User is unaffected
         Assert.Contains("public record User", result, StringComparison.Ordinal);
@@ -825,10 +901,10 @@ public class CSharpCodeEmitterTests
         string result = Generate(schemas);
 
         // "MyType" (exact match, most natural) keeps "MyType"
-        Assert.Contains("public record struct MyType(string Value)", result, StringComparison.Ordinal);
+        Assert.Contains("public readonly record struct MyType(string Value) : IOpenApiGeneratedTypeAlias<MyType, string>", result, StringComparison.Ordinal);
 
         // "myType" (camelCase) gets differentiated with naming style suffix
-        Assert.Contains("public record struct MyTypeCamelCase(string Value)", result, StringComparison.Ordinal);
+        Assert.Contains("public readonly record struct MyTypeCamelCase(string Value) : IOpenApiGeneratedTypeAlias<MyTypeCamelCase, string>", result, StringComparison.Ordinal);
     }
 
     #endregion
@@ -1279,7 +1355,7 @@ public class CSharpCodeEmitterTests
 
         string result = Generate(schemas);
 
-        Assert.Contains("public LogLevel? Level { get; init; } = TestModels.LogLevel.Info;", result, StringComparison.Ordinal);
+        Assert.Contains("public LogLevel Level { get; init; } = TestModels.LogLevel.Info;", result, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -105,7 +105,7 @@ Status:
 ```
 
 ```csharp
-// Output (StringEnums = true)
+// Output
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum Status
 {
@@ -117,6 +117,54 @@ public enum Status
     Pending,
 }
 ```
+
+### Primitive Type Aliases
+
+Primitive component schemas are emitted as wrapper structs by default so they can preserve the named type while still round-tripping with `System.Text.Json` defaults.
+
+```yaml
+# Input
+AlertCreatedAt:
+  type: string
+  format: date-time
+```
+
+```csharp
+// Output (default)
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+file interface IOpenApiGeneratedTypeAlias<TSelf, TValue>
+  where TSelf : struct, IOpenApiGeneratedTypeAlias<TSelf, TValue>
+{
+  static abstract TSelf Create(TValue value);
+
+  TValue Value { get; }
+}
+
+file sealed class OpenApiGeneratedTypeAliasJsonConverter<TAlias, TValue> : JsonConverter<TAlias>
+  where TAlias : struct, IOpenApiGeneratedTypeAlias<TAlias, TValue>
+{
+  public override TAlias Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+  {
+    TValue value = JsonSerializer.Deserialize<TValue>(ref reader, options)!;
+    return TAlias.Create(value);
+  }
+
+  public override void Write(Utf8JsonWriter writer, TAlias value, JsonSerializerOptions options)
+  {
+    JsonSerializer.Serialize(writer, value.Value, options);
+  }
+}
+
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<AlertCreatedAt, DateTimeOffset>))]
+public readonly record struct AlertCreatedAt(DateTimeOffset Value) : IOpenApiGeneratedTypeAlias<AlertCreatedAt, DateTimeOffset>
+{
+  public static AlertCreatedAt Create(DateTimeOffset value) => new(value);
+}
+```
+
+When `InlinePrimitiveTypeAliases = true` or `--inline-type-aliases` is enabled, references to primitive aliases are emitted as their underlying C# type instead.
 
 ## Composition
 

@@ -83,6 +83,20 @@ openapi-codegen spec.yaml -o Models.cs --mutable-arrays
 openapi-codegen spec.yaml -o Models.cs --mutable-dictionaries
 ```
 
+## Primitive Type Aliases
+
+By default, primitive component aliases are generated as wrapper structs with a shared `System.Text.Json` converter.
+
+```bash
+openapi-codegen spec.yaml -o Models.cs
+```
+
+If you prefer the underlying primitive type directly at usage sites, inline them:
+
+```bash
+openapi-codegen spec.yaml -o Models.cs --inline-type-aliases
+```
+
 ## Build Integration
 
 ### MSBuild Target

@@ -8,10 +8,9 @@ namespace OpenApiCodeGenerator.Tests;
 /// </summary>
 public class TypeResolverTests
 {
-    private static TypeResolver CreateResolver(GeneratorOptions? options = null)
+    private static TypeResolver CreateResolver(GeneratorOptions? options = null, IDictionary<string, IOpenApiSchema>? schemas = null)
     {
-        var schemas = new Dictionary<string, IOpenApiSchema>();
-        return new TypeResolver(options ?? new GeneratorOptions(), schemas);
+        return new TypeResolver(options ?? new GeneratorOptions(), schemas ?? new Dictionary<string, IOpenApiSchema>());
     }
 
     #region Primitive Types
@@ -232,6 +231,24 @@ public class TypeResolverTests
         Assert.Equal("UserStatus", resolver.Resolve(schema));
     }
 
+    [Fact]
+    public void Resolve_ReferenceToTypeAlias_WithInlineOption_ReturnsUnderlyingType()
+    {
+        var schemas = new Dictionary<string, IOpenApiSchema>
+        {
+            ["AlertCreatedAt"] = new OpenApiSchema
+            {
+                Type = JsonSchemaType.String,
+                Format = "date-time"
+            }
+        };
+
+        TypeResolver resolver = CreateResolver(new GeneratorOptions { InlinePrimitiveTypeAliases = true }, schemas);
+        var schema = new OpenApiSchemaReference("AlertCreatedAt");
+
+        Assert.Equal("DateTimeOffset", resolver.Resolve(schema));
+    }
+
     #endregion
 
     #region Schema Classification
@@ -259,6 +276,26 @@ public class TypeResolverTests
     {
         var schema = new OpenApiSchema { Type = JsonSchemaType.String, Format = "uuid" };
         Assert.True(TypeResolver.IsTypeAlias(schema));
+    }
+
+    [Fact]
+    public void RequiresBinaryStreamTypeAliasJsonConverter_BinaryStringAlias_ReturnsTrue()
+    {
+        TypeResolver resolver = CreateResolver();
+        var schema = new OpenApiSchema { Type = JsonSchemaType.String, Format = "binary" };
+
+        Assert.True(resolver.RequiresBinaryStreamTypeAliasJsonConverter(schema));
+        Assert.False(resolver.UsesGenericTypeAliasJsonConverter(schema));
+    }
+
+    [Fact]
+    public void UsesGenericTypeAliasJsonConverter_UuidAlias_ReturnsTrue()
+    {
+        TypeResolver resolver = CreateResolver();
+        var schema = new OpenApiSchema { Type = JsonSchemaType.String, Format = "uuid" };
+
+        Assert.True(resolver.UsesGenericTypeAliasJsonConverter(schema));
+        Assert.False(resolver.RequiresBinaryStreamTypeAliasJsonConverter(schema));
     }
 
     [Fact]

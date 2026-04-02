@@ -5,9 +5,33 @@
 
 #nullable enable
 
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Generated.OctokitGhes36DiffToApi;
+
+file interface IOpenApiGeneratedTypeAlias<TSelf, TValue>
+    where TSelf : struct, IOpenApiGeneratedTypeAlias<TSelf, TValue>
+{
+    static abstract TSelf Create(TValue value);
+
+    TValue Value { get; }
+}
+
+file sealed class OpenApiGeneratedTypeAliasJsonConverter<TAlias, TValue> : JsonConverter<TAlias>
+    where TAlias : struct, IOpenApiGeneratedTypeAlias<TAlias, TValue>
+{
+    public override TAlias Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        TValue value = JsonSerializer.Deserialize<TValue>(ref reader, options)!;
+        return TAlias.Create(value);
+    }
+
+    public override void Write(Utf8JsonWriter writer, TAlias value, JsonSerializerOptions options)
+    {
+        JsonSerializer.Serialize(writer, value.Value, options);
+    }
+}
 
 /// <summary>
 /// Describe whether all repositories have been selected or there's a selection involved
@@ -1089,7 +1113,7 @@ public record Installation
     /// Simple User
     /// </summary>
     [JsonPropertyName("suspended_by")]
-    public required NullableSimpleUser SuspendedBy { get; init; }
+    public required NullableSimpleUser? SuspendedBy { get; init; }
 
     [JsonPropertyName("suspended_at")]
     public required DateTimeOffset? SuspendedAt { get; init; }
@@ -1808,13 +1832,13 @@ public record OrganizationSecretScanningAlert
     /// Sets the state of the secret scanning alert. You must provide `resolution` when you set the state to `resolved`.
     /// </summary>
     [JsonPropertyName("state")]
-    public SecretScanningAlertState? State { get; init; }
+    public OrganizationSecretScanningAlertState? State { get; init; }
 
     /// <summary>
     /// **Required when the `state` is `resolved`.** The reason for resolving the alert.
     /// </summary>
     [JsonPropertyName("resolution")]
-    public SecretScanningAlertResolution? Resolution { get; init; }
+    public Resolution? Resolution { get; init; }
 
     /// <summary>
     /// The time that the alert was resolved in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -2439,7 +2463,7 @@ public record WorkflowRun
     /// Simple Commit
     /// </summary>
     [JsonPropertyName("head_commit")]
-    public required NullableSimpleCommit HeadCommit { get; init; }
+    public required NullableSimpleCommit? HeadCommit { get; init; }
 
     /// <summary>
     /// Minimal Repository
@@ -2487,7 +2511,11 @@ public record Autolink
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct CodeScanningRef(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningRef, string>))]
+public readonly record struct CodeScanningRef(string Value) : IOpenApiGeneratedTypeAlias<CodeScanningRef, string>
+{
+    public static CodeScanningRef Create(string value) => new(value);
+}
 
 /// <summary>
 /// An identifier for the upload.
@@ -2495,7 +2523,11 @@ public record struct CodeScanningRef(string Value);
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct CodeScanningAnalysisSarifId(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisSarifId, string>))]
+public readonly record struct CodeScanningAnalysisSarifId(string Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisSarifId, string>
+{
+    public static CodeScanningAnalysisSarifId Create(string value) => new(value);
+}
 
 public record CodeScanningAnalysis
 {
@@ -2671,7 +2703,7 @@ public record RepositoryCollaboratorPermission
     /// Collaborator
     /// </summary>
     [JsonPropertyName("user")]
-    public required NullableCollaborator User { get; init; }
+    public required NullableCollaborator? User { get; init; }
 
 }
 
@@ -3000,7 +3032,7 @@ public record FullRepository
     /// License Simple
     /// </summary>
     [JsonPropertyName("license")]
-    public required NullableLicenseSimple License { get; init; }
+    public required NullableLicenseSimple? License { get; init; }
 
     /// <summary>
     /// Simple User
@@ -3223,13 +3255,13 @@ public record SecretScanningAlert
     /// Sets the state of the secret scanning alert. You must provide `resolution` when you set the state to `resolved`.
     /// </summary>
     [JsonPropertyName("state")]
-    public SecretScanningAlertState? State { get; init; }
+    public OrganizationSecretScanningAlertState? State { get; init; }
 
     /// <summary>
     /// **Required when the `state` is `resolved`.** The reason for resolving the alert.
     /// </summary>
     [JsonPropertyName("resolution")]
-    public SecretScanningAlertResolution? Resolution { get; init; }
+    public Resolution? Resolution { get; init; }
 
     /// <summary>
     /// The time that the alert was resolved in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -3923,7 +3955,7 @@ public record Repository
     /// License Simple
     /// </summary>
     [JsonPropertyName("license")]
-    public required NullableLicenseSimple License { get; init; }
+    public required NullableLicenseSimple? License { get; init; }
 
     /// <summary>
     /// Simple User
@@ -4332,7 +4364,11 @@ public record NullableLicenseSimple
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct AnnouncementMessage(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<AnnouncementMessage, string>))]
+public readonly record struct AnnouncementMessage(string Value) : IOpenApiGeneratedTypeAlias<AnnouncementMessage, string>
+{
+    public static AnnouncementMessage Create(string value) => new(value);
+}
 
 /// <summary>
 /// The time at which the announcement expires. This is a timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format: `YYYY-MM-DDTHH:MM:SSZ`. To set an announcement that never expires, omit this parameter, set it to `null`, or set it to an empty string.
@@ -4340,7 +4376,11 @@ public record struct AnnouncementMessage(string Value);
 /// <summary>
 /// Type alias for DateTimeOffset?.
 /// </summary>
-public record struct AnnouncementExpiration(DateTimeOffset? Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<AnnouncementExpiration, DateTimeOffset?>))]
+public readonly record struct AnnouncementExpiration(DateTimeOffset? Value) : IOpenApiGeneratedTypeAlias<AnnouncementExpiration, DateTimeOffset?>
+{
+    public static AnnouncementExpiration Create(DateTimeOffset? value) => new(value);
+}
 
 /// <summary>
 /// The security alert number.
@@ -4348,7 +4388,11 @@ public record struct AnnouncementExpiration(DateTimeOffset? Value);
 /// <summary>
 /// Type alias for int.
 /// </summary>
-public record struct AlertNumber(int Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<AlertNumber, int>))]
+public readonly record struct AlertNumber(int Value) : IOpenApiGeneratedTypeAlias<AlertNumber, int>
+{
+    public static AlertNumber Create(int value) => new(value);
+}
 
 /// <summary>
 /// The time that the alert was created in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -4356,7 +4400,11 @@ public record struct AlertNumber(int Value);
 /// <summary>
 /// Type alias for DateTimeOffset.
 /// </summary>
-public record struct AlertCreatedAt(DateTimeOffset Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<AlertCreatedAt, DateTimeOffset>))]
+public readonly record struct AlertCreatedAt(DateTimeOffset Value) : IOpenApiGeneratedTypeAlias<AlertCreatedAt, DateTimeOffset>
+{
+    public static AlertCreatedAt Create(DateTimeOffset value) => new(value);
+}
 
 /// <summary>
 /// The time that the alert was last updated in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -4364,7 +4412,11 @@ public record struct AlertCreatedAt(DateTimeOffset Value);
 /// <summary>
 /// Type alias for DateTimeOffset?.
 /// </summary>
-public record struct NullableAlertUpdatedAt(DateTimeOffset? Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<NullableAlertUpdatedAt, DateTimeOffset?>))]
+public readonly record struct NullableAlertUpdatedAt(DateTimeOffset? Value) : IOpenApiGeneratedTypeAlias<NullableAlertUpdatedAt, DateTimeOffset?>
+{
+    public static NullableAlertUpdatedAt Create(DateTimeOffset? value) => new(value);
+}
 
 /// <summary>
 /// The REST API URL of the alert resource.
@@ -4372,7 +4424,11 @@ public record struct NullableAlertUpdatedAt(DateTimeOffset? Value);
 /// <summary>
 /// Type alias for Uri.
 /// </summary>
-public record struct AlertUrl(Uri Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<AlertUrl, Uri>))]
+public readonly record struct AlertUrl(Uri Value) : IOpenApiGeneratedTypeAlias<AlertUrl, Uri>
+{
+    public static AlertUrl Create(Uri value) => new(value);
+}
 
 /// <summary>
 /// The GitHub URL of the alert resource.
@@ -4380,7 +4436,11 @@ public record struct AlertUrl(Uri Value);
 /// <summary>
 /// Type alias for Uri.
 /// </summary>
-public record struct AlertHtmlUrl(Uri Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<AlertHtmlUrl, Uri>))]
+public readonly record struct AlertHtmlUrl(Uri Value) : IOpenApiGeneratedTypeAlias<AlertHtmlUrl, Uri>
+{
+    public static AlertHtmlUrl Create(Uri value) => new(value);
+}
 
 /// <summary>
 /// Simple Repository
@@ -4962,7 +5022,11 @@ public record NullableSimpleCommit
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct CodeScanningAnalysisToolName(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisToolName, string>))]
+public readonly record struct CodeScanningAnalysisToolName(string Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisToolName, string>
+{
+    public static CodeScanningAnalysisToolName Create(string value) => new(value);
+}
 
 /// <summary>
 /// The GUID of the tool used to generate the code scanning analysis, if provided in the uploaded SARIF data.
@@ -4970,7 +5034,11 @@ public record struct CodeScanningAnalysisToolName(string Value);
 /// <summary>
 /// Type alias for string?.
 /// </summary>
-public record struct CodeScanningAnalysisToolGuid(string? Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisToolGuid, string?>))]
+public readonly record struct CodeScanningAnalysisToolGuid(string? Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisToolGuid, string?>
+{
+    public static CodeScanningAnalysisToolGuid Create(string? value) => new(value);
+}
 
 /// <summary>
 /// The SHA of the commit to which the analysis you are uploading relates.
@@ -4978,7 +5046,11 @@ public record struct CodeScanningAnalysisToolGuid(string? Value);
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct CodeScanningAnalysisCommitSha(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisCommitSha, string>))]
+public readonly record struct CodeScanningAnalysisCommitSha(string Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisCommitSha, string>
+{
+    public static CodeScanningAnalysisCommitSha Create(string value) => new(value);
+}
 
 /// <summary>
 /// Identifies the configuration under which the analysis was executed. For example, in GitHub Actions this includes the workflow filename and job name.
@@ -4986,7 +5058,11 @@ public record struct CodeScanningAnalysisCommitSha(string Value);
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct CodeScanningAnalysisAnalysisKey(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisAnalysisKey, string>))]
+public readonly record struct CodeScanningAnalysisAnalysisKey(string Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisAnalysisKey, string>
+{
+    public static CodeScanningAnalysisAnalysisKey Create(string value) => new(value);
+}
 
 /// <summary>
 /// Identifies the variable values associated with the environment in which this analysis was performed.
@@ -4994,7 +5070,11 @@ public record struct CodeScanningAnalysisAnalysisKey(string Value);
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct CodeScanningAnalysisEnvironment(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisEnvironment, string>))]
+public readonly record struct CodeScanningAnalysisEnvironment(string Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisEnvironment, string>
+{
+    public static CodeScanningAnalysisEnvironment Create(string value) => new(value);
+}
 
 /// <summary>
 /// Identifies the configuration under which the analysis was executed. Used to distinguish between multiple analyses for the same tool and commit, but performed on different languages or different parts of the code.
@@ -5002,7 +5082,11 @@ public record struct CodeScanningAnalysisEnvironment(string Value);
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct CodeScanningAnalysisCategory(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisCategory, string>))]
+public readonly record struct CodeScanningAnalysisCategory(string Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisCategory, string>
+{
+    public static CodeScanningAnalysisCategory Create(string value) => new(value);
+}
 
 /// <summary>
 /// The time that the analysis was created in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -5010,7 +5094,11 @@ public record struct CodeScanningAnalysisCategory(string Value);
 /// <summary>
 /// Type alias for DateTimeOffset.
 /// </summary>
-public record struct CodeScanningAnalysisCreatedAt(DateTimeOffset Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisCreatedAt, DateTimeOffset>))]
+public readonly record struct CodeScanningAnalysisCreatedAt(DateTimeOffset Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisCreatedAt, DateTimeOffset>
+{
+    public static CodeScanningAnalysisCreatedAt Create(DateTimeOffset value) => new(value);
+}
 
 /// <summary>
 /// The REST API URL of the analysis resource.
@@ -5018,7 +5106,11 @@ public record struct CodeScanningAnalysisCreatedAt(DateTimeOffset Value);
 /// <summary>
 /// Type alias for Uri.
 /// </summary>
-public record struct CodeScanningAnalysisUrl(Uri Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisUrl, Uri>))]
+public readonly record struct CodeScanningAnalysisUrl(Uri Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisUrl, Uri>
+{
+    public static CodeScanningAnalysisUrl Create(Uri value) => new(value);
+}
 
 public record CodeScanningAnalysisTool
 {
@@ -5048,7 +5140,11 @@ public record CodeScanningAnalysisTool
 /// <summary>
 /// Type alias for string?.
 /// </summary>
-public record struct CodeScanningAnalysisToolVersion(string? Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisToolVersion, string?>))]
+public readonly record struct CodeScanningAnalysisToolVersion(string? Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisToolVersion, string?>
+{
+    public static CodeScanningAnalysisToolVersion Create(string? value) => new(value);
+}
 
 /// <summary>
 /// Collaborator
@@ -5150,7 +5246,7 @@ public record NullableRepository
     /// License Simple
     /// </summary>
     [JsonPropertyName("license")]
-    public required NullableLicenseSimple License { get; init; }
+    public required NullableLicenseSimple? License { get; init; }
 
     /// <summary>
     /// Simple User
@@ -5636,7 +5732,7 @@ public record ReleaseAsset
     /// Simple User
     /// </summary>
     [JsonPropertyName("uploader")]
-    public required NullableSimpleUser Uploader { get; init; }
+    public required NullableSimpleUser? Uploader { get; init; }
 
 }
 
@@ -5680,7 +5776,11 @@ public record ReactionRollup
 /// <summary>
 /// Type alias for DateTimeOffset.
 /// </summary>
-public record struct AlertUpdatedAt(DateTimeOffset Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<AlertUpdatedAt, DateTimeOffset>))]
+public readonly record struct AlertUpdatedAt(DateTimeOffset Value) : IOpenApiGeneratedTypeAlias<AlertUpdatedAt, DateTimeOffset>
+{
+    public static AlertUpdatedAt Create(DateTimeOffset value) => new(value);
+}
 
 /// <summary>
 /// Code Of Conduct

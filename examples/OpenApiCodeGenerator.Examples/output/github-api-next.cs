@@ -5,9 +5,33 @@
 
 #nullable enable
 
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Generated.GithubApiNext;
+
+file interface IOpenApiGeneratedTypeAlias<TSelf, TValue>
+    where TSelf : struct, IOpenApiGeneratedTypeAlias<TSelf, TValue>
+{
+    static abstract TSelf Create(TValue value);
+
+    TValue Value { get; }
+}
+
+file sealed class OpenApiGeneratedTypeAliasJsonConverter<TAlias, TValue> : JsonConverter<TAlias>
+    where TAlias : struct, IOpenApiGeneratedTypeAlias<TAlias, TValue>
+{
+    public override TAlias Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        TValue value = JsonSerializer.Deserialize<TValue>(ref reader, options)!;
+        return TAlias.Create(value);
+    }
+
+    public override void Write(Utf8JsonWriter writer, TAlias value, JsonSerializerOptions options)
+    {
+        JsonSerializer.Serialize(writer, value.Value, options);
+    }
+}
 
 /// <summary>
 /// The type of advisory.
@@ -5264,7 +5288,11 @@ public record Integration
 /// <summary>
 /// Type alias for Uri.
 /// </summary>
-public record struct WebhookConfigUrl(Uri Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<WebhookConfigUrl, Uri>))]
+public readonly record struct WebhookConfigUrl(Uri Value) : IOpenApiGeneratedTypeAlias<WebhookConfigUrl, Uri>
+{
+    public static WebhookConfigUrl Create(Uri value) => new(value);
+}
 
 /// <summary>
 /// The media type used to serialize the payloads. Supported values include `json` and `form`. The default is `form`.
@@ -5272,7 +5300,11 @@ public record struct WebhookConfigUrl(Uri Value);
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct WebhookConfigContentType(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<WebhookConfigContentType, string>))]
+public readonly record struct WebhookConfigContentType(string Value) : IOpenApiGeneratedTypeAlias<WebhookConfigContentType, string>
+{
+    public static WebhookConfigContentType Create(string value) => new(value);
+}
 
 /// <summary>
 /// If provided, the `secret` will be used as the `key` to generate the HMAC hex digest value for [delivery signature headers](https://docs.github.com/webhooks/event-payloads/#delivery-headers).
@@ -5280,7 +5312,11 @@ public record struct WebhookConfigContentType(string Value);
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct WebhookConfigSecret(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<WebhookConfigSecret, string>))]
+public readonly record struct WebhookConfigSecret(string Value) : IOpenApiGeneratedTypeAlias<WebhookConfigSecret, string>
+{
+    public static WebhookConfigSecret Create(string value) => new(value);
+}
 
 public abstract record WebhookConfigInsecureSsl;
 
@@ -7689,7 +7725,11 @@ public record CopilotUsageMetrics28DayReport
 /// <summary>
 /// Type alias for int.
 /// </summary>
-public record struct AlertNumber(int Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<AlertNumber, int>))]
+public readonly record struct AlertNumber(int Value) : IOpenApiGeneratedTypeAlias<AlertNumber, int>
+{
+    public static AlertNumber Create(int value) => new(value);
+}
 
 /// <summary>
 /// Details for the vulnerable package.
@@ -7841,7 +7881,11 @@ public record DependabotAlertSecurityAdvisory
 /// <summary>
 /// Type alias for Uri.
 /// </summary>
-public record struct AlertUrl(Uri Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<AlertUrl, Uri>))]
+public readonly record struct AlertUrl(Uri Value) : IOpenApiGeneratedTypeAlias<AlertUrl, Uri>
+{
+    public static AlertUrl Create(Uri value) => new(value);
+}
 
 /// <summary>
 /// The GitHub URL of the alert resource.
@@ -7849,7 +7893,11 @@ public record struct AlertUrl(Uri Value);
 /// <summary>
 /// Type alias for Uri.
 /// </summary>
-public record struct AlertHtmlUrl(Uri Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<AlertHtmlUrl, Uri>))]
+public readonly record struct AlertHtmlUrl(Uri Value) : IOpenApiGeneratedTypeAlias<AlertHtmlUrl, Uri>
+{
+    public static AlertHtmlUrl Create(Uri value) => new(value);
+}
 
 /// <summary>
 /// The time that the alert was created in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -7857,7 +7905,11 @@ public record struct AlertHtmlUrl(Uri Value);
 /// <summary>
 /// Type alias for DateTimeOffset.
 /// </summary>
-public record struct AlertCreatedAt(DateTimeOffset Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<AlertCreatedAt, DateTimeOffset>))]
+public readonly record struct AlertCreatedAt(DateTimeOffset Value) : IOpenApiGeneratedTypeAlias<AlertCreatedAt, DateTimeOffset>
+{
+    public static AlertCreatedAt Create(DateTimeOffset value) => new(value);
+}
 
 /// <summary>
 /// The time that the alert was last updated in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -7865,7 +7917,11 @@ public record struct AlertCreatedAt(DateTimeOffset Value);
 /// <summary>
 /// Type alias for DateTimeOffset.
 /// </summary>
-public record struct AlertUpdatedAt(DateTimeOffset Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<AlertUpdatedAt, DateTimeOffset>))]
+public readonly record struct AlertUpdatedAt(DateTimeOffset Value) : IOpenApiGeneratedTypeAlias<AlertUpdatedAt, DateTimeOffset>
+{
+    public static AlertUpdatedAt Create(DateTimeOffset value) => new(value);
+}
 
 /// <summary>
 /// The time that the alert was dismissed in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -7873,7 +7929,11 @@ public record struct AlertUpdatedAt(DateTimeOffset Value);
 /// <summary>
 /// Type alias for DateTimeOffset?.
 /// </summary>
-public record struct AlertDismissedAt(DateTimeOffset? Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<AlertDismissedAt, DateTimeOffset?>))]
+public readonly record struct AlertDismissedAt(DateTimeOffset? Value) : IOpenApiGeneratedTypeAlias<AlertDismissedAt, DateTimeOffset?>
+{
+    public static AlertDismissedAt Create(DateTimeOffset? value) => new(value);
+}
 
 /// <summary>
 /// The time that the alert was no longer detected and was considered fixed in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -7881,7 +7941,11 @@ public record struct AlertDismissedAt(DateTimeOffset? Value);
 /// <summary>
 /// Type alias for DateTimeOffset?.
 /// </summary>
-public record struct AlertFixedAt(DateTimeOffset? Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<AlertFixedAt, DateTimeOffset?>))]
+public readonly record struct AlertFixedAt(DateTimeOffset? Value) : IOpenApiGeneratedTypeAlias<AlertFixedAt, DateTimeOffset?>
+{
+    public static AlertFixedAt Create(DateTimeOffset? value) => new(value);
+}
 
 /// <summary>
 /// The time that the alert was auto-dismissed in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -7889,7 +7953,11 @@ public record struct AlertFixedAt(DateTimeOffset? Value);
 /// <summary>
 /// Type alias for DateTimeOffset?.
 /// </summary>
-public record struct AlertAutoDismissedAt(DateTimeOffset? Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<AlertAutoDismissedAt, DateTimeOffset?>))]
+public readonly record struct AlertAutoDismissedAt(DateTimeOffset? Value) : IOpenApiGeneratedTypeAlias<AlertAutoDismissedAt, DateTimeOffset?>
+{
+    public static AlertAutoDismissedAt Create(DateTimeOffset? value) => new(value);
+}
 
 /// <summary>
 /// Information about an active dismissal request for this Dependabot alert.
@@ -7991,7 +8059,7 @@ public record DependabotAlertWithRepository
     /// The time that the alert was dismissed in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
     /// </summary>
     [JsonPropertyName("dismissed_at")]
-    public required AlertDismissedAt DismissedAt { get; init; }
+    public required AlertDismissedAt? DismissedAt { get; init; }
 
     [JsonPropertyName("dismissed_by")]
     public required SimpleUser? DismissedBy { get; init; }
@@ -8012,7 +8080,7 @@ public record DependabotAlertWithRepository
     /// The time that the alert was no longer detected and was considered fixed in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
     /// </summary>
     [JsonPropertyName("fixed_at")]
-    public required AlertFixedAt FixedAt { get; init; }
+    public required AlertFixedAt? FixedAt { get; init; }
 
     /// <summary>
     /// The time that the alert was auto-dismissed in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -8547,7 +8615,7 @@ public record IssueComment
     /// How the author is associated with the repository.
     /// </summary>
     [JsonPropertyName("author_association")]
-    public AuthorAssociation? AuthorAssociation { get; init; }
+    public AuthorAssociation2? AuthorAssociation { get; init; }
 
     [JsonPropertyName("performed_via_github_app")]
     public Integration? PerformedViaGithubApp { get; init; }
@@ -8745,7 +8813,7 @@ public record Issue
     /// How the author is associated with the repository.
     /// </summary>
     [JsonPropertyName("author_association")]
-    public AuthorAssociation? AuthorAssociation { get; init; }
+    public AuthorAssociation2? AuthorAssociation { get; init; }
 
     [JsonPropertyName("reactions")]
     public ReactionRollup? Reactions { get; init; }
@@ -9377,7 +9445,7 @@ public record GistComment
     /// How the author is associated with the repository.
     /// </summary>
     [JsonPropertyName("author_association")]
-    public required AuthorAssociation AuthorAssociation { get; init; }
+    public required AuthorAssociation2 AuthorAssociation { get; init; }
 
 }
 
@@ -10920,7 +10988,11 @@ public enum AllowedActions
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct SelectedActionsUrl(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<SelectedActionsUrl, string>))]
+public readonly record struct SelectedActionsUrl(string Value) : IOpenApiGeneratedTypeAlias<SelectedActionsUrl, string>
+{
+    public static SelectedActionsUrl Create(string value) => new(value);
+}
 
 /// <summary>
 /// Whether actions must be pinned to a full-length commit SHA.
@@ -10928,7 +11000,11 @@ public record struct SelectedActionsUrl(string Value);
 /// <summary>
 /// Type alias for bool.
 /// </summary>
-public record struct ShaPinningRequired(bool Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<ShaPinningRequired, bool>))]
+public readonly record struct ShaPinningRequired(bool Value) : IOpenApiGeneratedTypeAlias<ShaPinningRequired, bool>
+{
+    public static ShaPinningRequired Create(bool value) => new(value);
+}
 
 public record ActionsOrganizationPermissions
 {
@@ -10936,7 +11012,7 @@ public record ActionsOrganizationPermissions
     /// The policy that controls the repositories in the organization that are allowed to run GitHub Actions.
     /// </summary>
     [JsonPropertyName("enabled_repositories")]
-    public required EnabledRepositories EnabledRepositories { get; init; }
+    public required ActionsOrganizationPermissionsEnabledRepositories EnabledRepositories { get; init; }
 
     /// <summary>
     /// The API URL to use to get or set the selected repositories that are allowed to run GitHub Actions, when `enabled_repositories` is set to `selected`.
@@ -10948,7 +11024,7 @@ public record ActionsOrganizationPermissions
     /// The permissions policy that controls the actions and reusable workflows that are allowed to run.
     /// </summary>
     [JsonPropertyName("allowed_actions")]
-    public AllowedActions? AllowedActions { get; init; }
+    public AllowedActions2? AllowedActions { get; init; }
 
     /// <summary>
     /// The API URL to use to get or set the actions and reusable workflows that are allowed to run, when `allowed_actions` is set to `selected`.
@@ -11115,7 +11191,11 @@ public enum ActionsDefaultWorkflowPermissions
 /// <summary>
 /// Type alias for bool.
 /// </summary>
-public record struct ActionsCanApprovePullRequestReviews(bool Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<ActionsCanApprovePullRequestReviews, bool>))]
+public readonly record struct ActionsCanApprovePullRequestReviews(bool Value) : IOpenApiGeneratedTypeAlias<ActionsCanApprovePullRequestReviews, bool>
+{
+    public static ActionsCanApprovePullRequestReviews Create(bool value) => new(value);
+}
 
 public record ActionsGetDefaultWorkflowPermissions
 {
@@ -11123,7 +11203,7 @@ public record ActionsGetDefaultWorkflowPermissions
     /// The default workflow permissions granted to the GITHUB_TOKEN when running workflows.
     /// </summary>
     [JsonPropertyName("default_workflow_permissions")]
-    public required ActionsDefaultWorkflowPermissions DefaultWorkflowPermissions { get; init; }
+    public required DefaultWorkflowPermissions DefaultWorkflowPermissions { get; init; }
 
     /// <summary>
     /// Whether GitHub Actions can approve pull requests. Enabling this can be a security risk.
@@ -11139,7 +11219,7 @@ public record ActionsSetDefaultWorkflowPermissions
     /// The default workflow permissions granted to the GITHUB_TOKEN when running workflows.
     /// </summary>
     [JsonPropertyName("default_workflow_permissions")]
-    public ActionsDefaultWorkflowPermissions? DefaultWorkflowPermissions { get; init; }
+    public DefaultWorkflowPermissions? DefaultWorkflowPermissions { get; init; }
 
     /// <summary>
     /// Whether GitHub Actions can approve pull requests. Enabling this can be a security risk.
@@ -11739,7 +11819,7 @@ public record CampaignSummary
     /// Indicates whether a campaign is open or closed
     /// </summary>
     [JsonPropertyName("state")]
-    public required CampaignState State { get; init; }
+    public required MilestoneState State { get; init; }
 
     /// <summary>
     /// The contact link of the campaign.
@@ -11758,7 +11838,11 @@ public record CampaignSummary
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct CodeScanningAnalysisToolName(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisToolName, string>))]
+public readonly record struct CodeScanningAnalysisToolName(string Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisToolName, string>
+{
+    public static CodeScanningAnalysisToolName Create(string value) => new(value);
+}
 
 /// <summary>
 /// The GUID of the tool used to generate the code scanning analysis, if provided in the uploaded SARIF data.
@@ -11766,7 +11850,11 @@ public record struct CodeScanningAnalysisToolName(string Value);
 /// <summary>
 /// Type alias for string?.
 /// </summary>
-public record struct CodeScanningAnalysisToolGuid(string? Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisToolGuid, string?>))]
+public readonly record struct CodeScanningAnalysisToolGuid(string? Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisToolGuid, string?>
+{
+    public static CodeScanningAnalysisToolGuid Create(string? value) => new(value);
+}
 
 /// <summary>
 /// State of a code scanning alert.
@@ -11812,7 +11900,11 @@ public enum CodeScanningAlertSeverity
 /// <summary>
 /// Type alias for Uri.
 /// </summary>
-public record struct AlertInstancesUrl(Uri Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<AlertInstancesUrl, Uri>))]
+public readonly record struct AlertInstancesUrl(Uri Value) : IOpenApiGeneratedTypeAlias<AlertInstancesUrl, Uri>
+{
+    public static AlertInstancesUrl Create(Uri value) => new(value);
+}
 
 /// <summary>
 /// State of a code scanning alert.
@@ -11852,7 +11944,11 @@ public enum CodeScanningAlertDismissedReason
 /// <summary>
 /// Type alias for string?.
 /// </summary>
-public record struct CodeScanningAlertDismissedComment(string? Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAlertDismissedComment, string?>))]
+public readonly record struct CodeScanningAlertDismissedComment(string? Value) : IOpenApiGeneratedTypeAlias<CodeScanningAlertDismissedComment, string?>
+{
+    public static CodeScanningAlertDismissedComment Create(string? value) => new(value);
+}
 
 public record CodeScanningAlertRuleSummary
 {
@@ -11918,7 +12014,11 @@ public record CodeScanningAlertRuleSummary
 /// <summary>
 /// Type alias for string?.
 /// </summary>
-public record struct CodeScanningAnalysisToolVersion(string? Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisToolVersion, string?>))]
+public readonly record struct CodeScanningAnalysisToolVersion(string? Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisToolVersion, string?>
+{
+    public static CodeScanningAnalysisToolVersion Create(string? value) => new(value);
+}
 
 public record CodeScanningAnalysisTool
 {
@@ -11949,7 +12049,11 @@ public record CodeScanningAnalysisTool
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct CodeScanningRef(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningRef, string>))]
+public readonly record struct CodeScanningRef(string Value) : IOpenApiGeneratedTypeAlias<CodeScanningRef, string>
+{
+    public static CodeScanningRef Create(string value) => new(value);
+}
 
 /// <summary>
 /// Identifies the configuration under which the analysis was executed. For example, in GitHub Actions this includes the workflow filename and job name.
@@ -11957,7 +12061,11 @@ public record struct CodeScanningRef(string Value);
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct CodeScanningAnalysisAnalysisKey(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisAnalysisKey, string>))]
+public readonly record struct CodeScanningAnalysisAnalysisKey(string Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisAnalysisKey, string>
+{
+    public static CodeScanningAnalysisAnalysisKey Create(string value) => new(value);
+}
 
 /// <summary>
 /// Identifies the variable values associated with the environment in which the analysis that generated this alert instance was performed, such as the language that was analyzed.
@@ -11965,7 +12073,11 @@ public record struct CodeScanningAnalysisAnalysisKey(string Value);
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct CodeScanningAlertEnvironment(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAlertEnvironment, string>))]
+public readonly record struct CodeScanningAlertEnvironment(string Value) : IOpenApiGeneratedTypeAlias<CodeScanningAlertEnvironment, string>
+{
+    public static CodeScanningAlertEnvironment Create(string value) => new(value);
+}
 
 /// <summary>
 /// Identifies the configuration under which the analysis was executed. Used to distinguish between multiple analyses for the same tool and commit, but performed on different languages or different parts of the code.
@@ -11973,7 +12085,11 @@ public record struct CodeScanningAlertEnvironment(string Value);
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct CodeScanningAnalysisCategory(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisCategory, string>))]
+public readonly record struct CodeScanningAnalysisCategory(string Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisCategory, string>
+{
+    public static CodeScanningAnalysisCategory Create(string value) => new(value);
+}
 
 /// <summary>
 /// Describe a region within a file for the alert.
@@ -12046,7 +12162,7 @@ public record CodeScanningAlertInstance
     /// State of a code scanning alert.
     /// </summary>
     [JsonPropertyName("state")]
-    public CodeScanningAlertState? State { get; init; }
+    public CodeScanningAlertInstanceState2? State { get; init; }
 
     [JsonPropertyName("commit_sha")]
     public string? CommitSha { get; init; }
@@ -12114,7 +12230,7 @@ public record CodeScanningOrganizationAlertItems
     /// State of a code scanning alert.
     /// </summary>
     [JsonPropertyName("state")]
-    public required CodeScanningAlertState State { get; init; }
+    public required CodeScanningAlertInstanceState2 State { get; init; }
 
     /// <summary>
     /// The time that the alert was no longer detected and was considered fixed in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -12129,13 +12245,13 @@ public record CodeScanningOrganizationAlertItems
     /// The time that the alert was dismissed in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
     /// </summary>
     [JsonPropertyName("dismissed_at")]
-    public required AlertDismissedAt DismissedAt { get; init; }
+    public required AlertDismissedAt? DismissedAt { get; init; }
 
     /// <summary>
     /// **Required when the state is dismissed.** The reason for dismissing or closing the alert.
     /// </summary>
     [JsonPropertyName("dismissed_reason")]
-    public required CodeScanningAlertDismissedReason DismissedReason { get; init; }
+    public required CodeScanningOrganizationAlertItemsDismissedReason DismissedReason { get; init; }
 
     /// <summary>
     /// The dismissal comment associated with the dismissal of the alert.
@@ -12991,7 +13107,7 @@ public record InteractionLimitResponse
     /// The type of GitHub user that can comment, open issues, or create pull requests while the interaction limit is in effect.
     /// </summary>
     [JsonPropertyName("limit")]
-    public required InteractionGroup Limit { get; init; }
+    public required Limit Limit { get; init; }
 
     [JsonPropertyName("origin")]
     public required string Origin { get; init; }
@@ -13028,13 +13144,13 @@ public record InteractionLimit
     /// The type of GitHub user that can comment, open issues, or create pull requests while the interaction limit is in effect.
     /// </summary>
     [JsonPropertyName("limit")]
-    public required InteractionGroup Limit { get; init; }
+    public required Limit Limit { get; init; }
 
     /// <summary>
     /// The duration of the interaction restriction. Default: `one_day`.
     /// </summary>
     [JsonPropertyName("expiry")]
-    public InteractionExpiry? Expiry { get; init; }
+    public Expiry? Expiry { get; init; }
 
 }
 
@@ -14303,13 +14419,13 @@ public record PullRequestSimple
     /// How the author is associated with the repository.
     /// </summary>
     [JsonPropertyName("author_association")]
-    public required AuthorAssociation AuthorAssociation { get; init; }
+    public required AuthorAssociation2 AuthorAssociation { get; init; }
 
     /// <summary>
     /// The status of auto merging a pull request.
     /// </summary>
     [JsonPropertyName("auto_merge")]
-    public required AutoMerge AutoMerge { get; init; }
+    public required AutoMerge? AutoMerge { get; init; }
 
     /// <summary>
     /// Indicates whether or not the pull request is a draft.
@@ -14406,7 +14522,7 @@ public record ProjectsV2ItemSimple
     /// The type of content tracked in a project item
     /// </summary>
     [JsonPropertyName("content_type")]
-    public required ProjectsV2ItemContentType ContentType { get; init; }
+    public required ContentType ContentType { get; init; }
 
     /// <summary>
     /// A GitHub user.
@@ -14655,7 +14771,7 @@ public record ProjectsV2ItemWithContent
     /// The type of content tracked in a project item
     /// </summary>
     [JsonPropertyName("content_type")]
-    public required ProjectsV2ItemContentType ContentType { get; init; }
+    public required ContentType ContentType { get; init; }
 
     /// <summary>
     /// The content of the item, which varies by content type.
@@ -15920,7 +16036,7 @@ public record RepositoryRuleset
     /// The enforcement level of the ruleset. `evaluate` allows admins to test rules before enforcing them. Admins can view insights on the Rule Insights page (`evaluate` is only available with GitHub Enterprise).
     /// </summary>
     [JsonPropertyName("enforcement")]
-    public required RepositoryRuleEnforcement Enforcement { get; init; }
+    public required RepositoryRulesetEnforcement Enforcement { get; init; }
 
     /// <summary>
     /// The actors that can bypass the rules in this ruleset
@@ -16457,13 +16573,13 @@ public record OrganizationSecretScanningAlert
     /// Sets the state of the secret scanning alert. You must provide `resolution` when you set the state to `resolved`.
     /// </summary>
     [JsonPropertyName("state")]
-    public SecretScanningAlertState? State { get; init; }
+    public OrganizationSecretScanningAlertState? State { get; init; }
 
     /// <summary>
     /// **Required when the `state` is `resolved`.** The reason for resolving the alert.
     /// </summary>
     [JsonPropertyName("resolution")]
-    public SecretScanningAlertResolution? Resolution { get; init; }
+    public OrganizationSecretScanningAlertResolution? Resolution { get; init; }
 
     /// <summary>
     /// The time that the alert was resolved in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -16585,7 +16701,11 @@ public record OrganizationSecretScanningAlert
 /// <summary>
 /// Type alias for string?.
 /// </summary>
-public record struct SecretScanningRowVersion(string? Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<SecretScanningRowVersion, string?>))]
+public readonly record struct SecretScanningRowVersion(string? Value) : IOpenApiGeneratedTypeAlias<SecretScanningRowVersion, string?>
+{
+    public static SecretScanningRowVersion Create(string? value) => new(value);
+}
 
 public record SecretScanningPatternOverride
 {
@@ -16734,7 +16854,7 @@ public record RepositoryAdvisoryCredit
     /// The type of credit the user is receiving.
     /// </summary>
     [JsonPropertyName("type")]
-    public required SecurityAdvisoryCreditTypes Type { get; init; }
+    public required RepositoryAdvisoryCreditType Type { get; init; }
 
     /// <summary>
     /// The state of the user's acceptance of the credit.
@@ -17154,7 +17274,11 @@ public record TeamOrganization
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct LdapDn(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<LdapDn, string>))]
+public readonly record struct LdapDn(string Value) : IOpenApiGeneratedTypeAlias<LdapDn, string>
+{
+    public static LdapDn Create(string value) => new(value);
+}
 
 /// <summary>
 /// Groups of organization members that gives permissions on specified repositories.
@@ -17946,7 +18070,11 @@ public record ActionsVariable
 /// <summary>
 /// Type alias for bool.
 /// </summary>
-public record struct ActionsEnabled(bool Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<ActionsEnabled, bool>))]
+public readonly record struct ActionsEnabled(bool Value) : IOpenApiGeneratedTypeAlias<ActionsEnabled, bool>
+{
+    public static ActionsEnabled Create(bool value) => new(value);
+}
 
 public record ActionsRepositoryPermissions
 {
@@ -17960,7 +18088,7 @@ public record ActionsRepositoryPermissions
     /// The permissions policy that controls the actions and reusable workflows that are allowed to run.
     /// </summary>
     [JsonPropertyName("allowed_actions")]
-    public AllowedActions? AllowedActions { get; init; }
+    public AllowedActions2? AllowedActions { get; init; }
 
     /// <summary>
     /// The API URL to use to get or set the actions and reusable workflows that are allowed to run, when `allowed_actions` is set to `selected`.
@@ -18491,7 +18619,11 @@ public record Workflow
 /// <summary>
 /// Type alias for long.
 /// </summary>
-public record struct WorkflowRunId(long Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<WorkflowRunId, long>))]
+public readonly record struct WorkflowRunId(long Value) : IOpenApiGeneratedTypeAlias<WorkflowRunId, long>
+{
+    public static WorkflowRunId Create(long value) => new(value);
+}
 
 /// <summary>
 /// Response containing the workflow run ID and URLs.
@@ -19362,7 +19494,7 @@ public record CodeScanningAlertItems
     /// State of a code scanning alert.
     /// </summary>
     [JsonPropertyName("state")]
-    public required CodeScanningAlertState State { get; init; }
+    public required CodeScanningAlertInstanceState2 State { get; init; }
 
     /// <summary>
     /// The time that the alert was no longer detected and was considered fixed in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -19377,13 +19509,13 @@ public record CodeScanningAlertItems
     /// The time that the alert was dismissed in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
     /// </summary>
     [JsonPropertyName("dismissed_at")]
-    public required AlertDismissedAt DismissedAt { get; init; }
+    public required AlertDismissedAt? DismissedAt { get; init; }
 
     /// <summary>
     /// **Required when the state is dismissed.** The reason for dismissing or closing the alert.
     /// </summary>
     [JsonPropertyName("dismissed_reason")]
-    public required CodeScanningAlertDismissedReason DismissedReason { get; init; }
+    public required CodeScanningOrganizationAlertItemsDismissedReason DismissedReason { get; init; }
 
     /// <summary>
     /// The dismissal comment associated with the dismissal of the alert.
@@ -19508,7 +19640,7 @@ public record CodeScanningAlert
     /// State of a code scanning alert.
     /// </summary>
     [JsonPropertyName("state")]
-    public required CodeScanningAlertState State { get; init; }
+    public required CodeScanningAlertInstanceState2 State { get; init; }
 
     /// <summary>
     /// The time that the alert was no longer detected and was considered fixed in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -19523,13 +19655,13 @@ public record CodeScanningAlert
     /// The time that the alert was dismissed in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
     /// </summary>
     [JsonPropertyName("dismissed_at")]
-    public required AlertDismissedAt DismissedAt { get; init; }
+    public required AlertDismissedAt? DismissedAt { get; init; }
 
     /// <summary>
     /// **Required when the state is dismissed.** The reason for dismissing or closing the alert.
     /// </summary>
     [JsonPropertyName("dismissed_reason")]
-    public required CodeScanningAlertDismissedReason DismissedReason { get; init; }
+    public required CodeScanningOrganizationAlertItemsDismissedReason DismissedReason { get; init; }
 
     /// <summary>
     /// The dismissal comment associated with the dismissal of the alert.
@@ -19572,7 +19704,11 @@ public enum CodeScanningAlertSetState
 /// <summary>
 /// Type alias for bool.
 /// </summary>
-public record struct CodeScanningAlertCreateRequest(bool Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAlertCreateRequest, bool>))]
+public readonly record struct CodeScanningAlertCreateRequest(bool Value) : IOpenApiGeneratedTypeAlias<CodeScanningAlertCreateRequest, bool>
+{
+    public static CodeScanningAlertCreateRequest Create(bool value) => new(value);
+}
 
 /// <summary>
 /// The list of users to assign to the code scanning alert. An empty array unassigns all previous assignees from the alert.
@@ -19601,7 +19737,11 @@ public enum CodeScanningAutofixStatus
 /// <summary>
 /// Type alias for string?.
 /// </summary>
-public record struct CodeScanningAutofixDescription(string? Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAutofixDescription, string?>))]
+public readonly record struct CodeScanningAutofixDescription(string? Value) : IOpenApiGeneratedTypeAlias<CodeScanningAutofixDescription, string?>
+{
+    public static CodeScanningAutofixDescription Create(string? value) => new(value);
+}
 
 /// <summary>
 /// The start time of an autofix in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -19609,7 +19749,11 @@ public record struct CodeScanningAutofixDescription(string? Value);
 /// <summary>
 /// Type alias for DateTimeOffset.
 /// </summary>
-public record struct CodeScanningAutofixStartedAt(DateTimeOffset Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAutofixStartedAt, DateTimeOffset>))]
+public readonly record struct CodeScanningAutofixStartedAt(DateTimeOffset Value) : IOpenApiGeneratedTypeAlias<CodeScanningAutofixStartedAt, DateTimeOffset>
+{
+    public static CodeScanningAutofixStartedAt Create(DateTimeOffset value) => new(value);
+}
 
 public record CodeScanningAutofix
 {
@@ -19617,13 +19761,13 @@ public record CodeScanningAutofix
     /// The status of an autofix.
     /// </summary>
     [JsonPropertyName("status")]
-    public required CodeScanningAutofixStatus Status { get; init; }
+    public required CodeScanningAutofixStatus2 Status { get; init; }
 
     /// <summary>
     /// The description of an autofix.
     /// </summary>
     [JsonPropertyName("description")]
-    public required CodeScanningAutofixDescription Description { get; init; }
+    public required CodeScanningAutofixDescription? Description { get; init; }
 
     /// <summary>
     /// The start time of an autofix in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -19713,7 +19857,7 @@ public record CodeScanningAlertInstanceList
     /// State of a code scanning alert instance.
     /// </summary>
     [JsonPropertyName("state")]
-    public CodeScanningAlertInstanceState? State { get; init; }
+    public CodeScanningAlertInstanceListState? State { get; init; }
 
     [JsonPropertyName("commit_sha")]
     public string? CommitSha { get; init; }
@@ -19745,7 +19889,11 @@ public record CodeScanningAlertInstanceList
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct CodeScanningAnalysisSarifId(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisSarifId, string>))]
+public readonly record struct CodeScanningAnalysisSarifId(string Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisSarifId, string>
+{
+    public static CodeScanningAnalysisSarifId Create(string value) => new(value);
+}
 
 /// <summary>
 /// The SHA of the commit to which the analysis you are uploading relates.
@@ -19753,7 +19901,11 @@ public record struct CodeScanningAnalysisSarifId(string Value);
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct CodeScanningAnalysisCommitSha(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisCommitSha, string>))]
+public readonly record struct CodeScanningAnalysisCommitSha(string Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisCommitSha, string>
+{
+    public static CodeScanningAnalysisCommitSha Create(string value) => new(value);
+}
 
 /// <summary>
 /// Identifies the variable values associated with the environment in which this analysis was performed.
@@ -19761,7 +19913,11 @@ public record struct CodeScanningAnalysisCommitSha(string Value);
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct CodeScanningAnalysisEnvironment(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisEnvironment, string>))]
+public readonly record struct CodeScanningAnalysisEnvironment(string Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisEnvironment, string>
+{
+    public static CodeScanningAnalysisEnvironment Create(string value) => new(value);
+}
 
 /// <summary>
 /// The time that the analysis was created in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -19769,7 +19925,11 @@ public record struct CodeScanningAnalysisEnvironment(string Value);
 /// <summary>
 /// Type alias for DateTimeOffset.
 /// </summary>
-public record struct CodeScanningAnalysisCreatedAt(DateTimeOffset Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisCreatedAt, DateTimeOffset>))]
+public readonly record struct CodeScanningAnalysisCreatedAt(DateTimeOffset Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisCreatedAt, DateTimeOffset>
+{
+    public static CodeScanningAnalysisCreatedAt Create(DateTimeOffset value) => new(value);
+}
 
 /// <summary>
 /// The REST API URL of the analysis resource.
@@ -19777,7 +19937,11 @@ public record struct CodeScanningAnalysisCreatedAt(DateTimeOffset Value);
 /// <summary>
 /// Type alias for Uri.
 /// </summary>
-public record struct CodeScanningAnalysisUrl(Uri Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisUrl, Uri>))]
+public readonly record struct CodeScanningAnalysisUrl(Uri Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisUrl, Uri>
+{
+    public static CodeScanningAnalysisUrl Create(Uri value) => new(value);
+}
 
 public record CodeScanningAnalysis
 {
@@ -20079,7 +20243,7 @@ public record CodeScanningVariantAnalysis
     /// The language targeted by the CodeQL query
     /// </summary>
     [JsonPropertyName("query_language")]
-    public required CodeScanningVariantAnalysisLanguage QueryLanguage { get; init; }
+    public required QueryLanguage QueryLanguage { get; init; }
 
     /// <summary>
     /// The download url for the query pack.
@@ -20143,7 +20307,7 @@ public record CodeScanningVariantAnalysisRepoTask
     /// The new status of the CodeQL variant analysis repository task.
     /// </summary>
     [JsonPropertyName("analysis_status")]
-    public required CodeScanningVariantAnalysisStatus AnalysisStatus { get; init; }
+    public required AnalysisStatus AnalysisStatus { get; init; }
 
     /// <summary>
     /// The size of the artifact. This is only available for successful analyses.
@@ -20308,7 +20472,11 @@ public record CodeScanningDefaultSetupUpdateResponse
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct CodeScanningRefFull(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningRefFull, string>))]
+public readonly record struct CodeScanningRefFull(string Value) : IOpenApiGeneratedTypeAlias<CodeScanningRefFull, string>
+{
+    public static CodeScanningRefFull Create(string value) => new(value);
+}
 
 /// <summary>
 /// A Base64 string representing the SARIF file to upload. You must first compress your SARIF file using [`gzip`](http://www.gnu.org/software/gzip/manual/gzip.html) and then translate the contents of the file into a Base64 encoding string. For more information, see "[SARIF support for code scanning](https://docs.github.com/code-security/secure-coding/sarif-support-for-code-scanning)."
@@ -20316,7 +20484,11 @@ public record struct CodeScanningRefFull(string Value);
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct CodeScanningAnalysisSarifFile(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<CodeScanningAnalysisSarifFile, string>))]
+public readonly record struct CodeScanningAnalysisSarifFile(string Value) : IOpenApiGeneratedTypeAlias<CodeScanningAnalysisSarifFile, string>
+{
+    public static CodeScanningAnalysisSarifFile Create(string value) => new(value);
+}
 
 public record CodeScanningSarifsReceipt
 {
@@ -20606,7 +20778,7 @@ public record CommitComment
     /// How the author is associated with the repository.
     /// </summary>
     [JsonPropertyName("author_association")]
-    public required AuthorAssociation AuthorAssociation { get; init; }
+    public required AuthorAssociation2 AuthorAssociation { get; init; }
 
     [JsonPropertyName("reactions")]
     public ReactionRollup? Reactions { get; init; }
@@ -21048,7 +21220,11 @@ public record FileCommit
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct SecretScanningPushProtectionBypassPlaceholderId(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<SecretScanningPushProtectionBypassPlaceholderId, string>))]
+public readonly record struct SecretScanningPushProtectionBypassPlaceholderId(string Value) : IOpenApiGeneratedTypeAlias<SecretScanningPushProtectionBypassPlaceholderId, string>
+{
+    public static SecretScanningPushProtectionBypassPlaceholderId Create(string value) => new(value);
+}
 
 /// <summary>
 /// Repository rule violation was detected
@@ -21205,7 +21381,7 @@ public record DependabotAlert
     /// The time that the alert was dismissed in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
     /// </summary>
     [JsonPropertyName("dismissed_at")]
-    public required AlertDismissedAt DismissedAt { get; init; }
+    public required AlertDismissedAt? DismissedAt { get; init; }
 
     [JsonPropertyName("dismissed_by")]
     public required SimpleUser? DismissedBy { get; init; }
@@ -21226,7 +21402,7 @@ public record DependabotAlert
     /// The time that the alert was no longer detected and was considered fixed in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
     /// </summary>
     [JsonPropertyName("fixed_at")]
-    public required AlertFixedAt FixedAt { get; init; }
+    public required AlertFixedAt? FixedAt { get; init; }
 
     /// <summary>
     /// The time that the alert was auto-dismissed in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -21474,7 +21650,11 @@ public record DeploymentStatus
 /// <summary>
 /// Type alias for int.
 /// </summary>
-public record struct WaitTimer(int Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<WaitTimer, int>))]
+public readonly record struct WaitTimer(int Value) : IOpenApiGeneratedTypeAlias<WaitTimer, int>
+{
+    public static WaitTimer Create(int value) => new(value);
+}
 
 /// <summary>
 /// The type of deployment branch policy for this environment. To allow all branches to deploy, set to `null`.
@@ -21553,7 +21733,11 @@ public record Environment
 /// <summary>
 /// Type alias for bool.
 /// </summary>
-public record struct PreventSelfReview(bool Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<PreventSelfReview, bool>))]
+public readonly record struct PreventSelfReview(bool Value) : IOpenApiGeneratedTypeAlias<PreventSelfReview, bool>
+{
+    public static PreventSelfReview Create(bool value) => new(value);
+}
 
 /// <summary>
 /// Details of a deployment branch or tag policy.
@@ -22225,7 +22409,7 @@ public record IssueEvent
     /// How the author is associated with the repository.
     /// </summary>
     [JsonPropertyName("author_association")]
-    public AuthorAssociation? AuthorAssociation { get; init; }
+    public AuthorAssociation2? AuthorAssociation { get; init; }
 
     [JsonPropertyName("lock_reason")]
     public string? LockReason { get; init; }
@@ -22351,7 +22535,7 @@ public record AssignedIssueEvent
     /// GitHub apps are a new way to extend GitHub. They can be installed directly on organizations and user accounts and granted access to specific repositories. They come with granular permissions and built-in webhooks. GitHub apps are first class actors within GitHub.
     /// </summary>
     [JsonPropertyName("performed_via_github_app")]
-    public required Integration PerformedViaGithubApp { get; init; }
+    public required Integration? PerformedViaGithubApp { get; init; }
 
     /// <summary>
     /// A GitHub user.
@@ -22882,7 +23066,7 @@ public record ConvertedNoteToIssueIssueEvent
     /// GitHub apps are a new way to extend GitHub. They can be installed directly on organizations and user accounts and granted access to specific repositories. They come with granular permissions and built-in webhooks. GitHub apps are first class actors within GitHub.
     /// </summary>
     [JsonPropertyName("performed_via_github_app")]
-    public required Integration PerformedViaGithubApp { get; init; }
+    public required Integration? PerformedViaGithubApp { get; init; }
 
     [JsonPropertyName("project_card")]
     public object? ProjectCard { get; init; }
@@ -22975,7 +23159,7 @@ public record TimelineCommentEvent
     /// How the author is associated with the repository.
     /// </summary>
     [JsonPropertyName("author_association")]
-    public required AuthorAssociation AuthorAssociation { get; init; }
+    public required AuthorAssociation2 AuthorAssociation { get; init; }
 
     [JsonPropertyName("performed_via_github_app")]
     public Integration? PerformedViaGithubApp { get; init; }
@@ -23128,7 +23312,7 @@ public record TimelineReviewedEvent
     /// How the author is associated with the repository.
     /// </summary>
     [JsonPropertyName("author_association")]
-    public required AuthorAssociation AuthorAssociation { get; init; }
+    public required AuthorAssociation2 AuthorAssociation { get; init; }
 
 }
 
@@ -23234,7 +23418,7 @@ public record PullRequestReviewComment
     /// How the author is associated with the repository.
     /// </summary>
     [JsonPropertyName("author_association")]
-    public required AuthorAssociation AuthorAssociation { get; init; }
+    public required AuthorAssociation2 AuthorAssociation { get; init; }
 
     [JsonPropertyName("_links")]
     public required object Links { get; init; }
@@ -23884,13 +24068,13 @@ public record PullRequest
     /// How the author is associated with the repository.
     /// </summary>
     [JsonPropertyName("author_association")]
-    public required AuthorAssociation AuthorAssociation { get; init; }
+    public required AuthorAssociation2 AuthorAssociation { get; init; }
 
     /// <summary>
     /// The status of auto merging a pull request.
     /// </summary>
     [JsonPropertyName("auto_merge")]
-    public required AutoMerge AutoMerge { get; init; }
+    public required AutoMerge? AutoMerge { get; init; }
 
     /// <summary>
     /// Indicates whether or not the pull request is a draft.
@@ -24022,7 +24206,7 @@ public record PullRequestReview
     /// How the author is associated with the repository.
     /// </summary>
     [JsonPropertyName("author_association")]
-    public required AuthorAssociation AuthorAssociation { get; init; }
+    public required AuthorAssociation2 AuthorAssociation { get; init; }
 
 }
 
@@ -24086,7 +24270,7 @@ public record ReviewComment
     /// How the author is associated with the repository.
     /// </summary>
     [JsonPropertyName("author_association")]
-    public required AuthorAssociation AuthorAssociation { get; init; }
+    public required AuthorAssociation2 AuthorAssociation { get; init; }
 
     [JsonPropertyName("_links")]
     public required object Links { get; init; }
@@ -24234,13 +24418,13 @@ public record SecretScanningAlert
     /// Sets the state of the secret scanning alert. You must provide `resolution` when you set the state to `resolved`.
     /// </summary>
     [JsonPropertyName("state")]
-    public SecretScanningAlertState? State { get; init; }
+    public OrganizationSecretScanningAlertState? State { get; init; }
 
     /// <summary>
     /// **Required when the `state` is `resolved`.** The reason for resolving the alert.
     /// </summary>
     [JsonPropertyName("resolution")]
-    public SecretScanningAlertResolution? Resolution { get; init; }
+    public OrganizationSecretScanningAlertResolution? Resolution { get; init; }
 
     /// <summary>
     /// The time that the alert was resolved in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -24356,7 +24540,11 @@ public record SecretScanningAlert
 /// <summary>
 /// Type alias for string?.
 /// </summary>
-public record struct SecretScanningAlertResolutionComment(string? Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<SecretScanningAlertResolutionComment, string?>))]
+public readonly record struct SecretScanningAlertResolutionComment(string? Value) : IOpenApiGeneratedTypeAlias<SecretScanningAlertResolutionComment, string?>
+{
+    public static SecretScanningAlertResolutionComment Create(string? value) => new(value);
+}
 
 /// <summary>
 /// The username of the user to assign to the alert. Set to `null` to unassign the alert.
@@ -24364,7 +24552,11 @@ public record struct SecretScanningAlertResolutionComment(string? Value);
 /// <summary>
 /// Type alias for string?.
 /// </summary>
-public record struct SecretScanningAlertAssignee(string? Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<SecretScanningAlertAssignee, string?>))]
+public readonly record struct SecretScanningAlertAssignee(string? Value) : IOpenApiGeneratedTypeAlias<SecretScanningAlertAssignee, string?>
+{
+    public static SecretScanningAlertAssignee Create(string? value) => new(value);
+}
 
 public record SecretScanningLocation
 {
@@ -24399,7 +24591,7 @@ public record SecretScanningPushProtectionBypass
     /// The reason for bypassing push protection.
     /// </summary>
     [JsonPropertyName("reason")]
-    public SecretScanningPushProtectionBypassReason? Reason { get; init; }
+    public SecretScanningPushProtectionBypassReason2? Reason { get; init; }
 
     /// <summary>
     /// The time that the bypass will expire in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -25035,7 +25227,7 @@ public record IssueSearchResultItem
     /// How the author is associated with the repository.
     /// </summary>
     [JsonPropertyName("author_association")]
-    public required AuthorAssociation AuthorAssociation { get; init; }
+    public required AuthorAssociation2 AuthorAssociation { get; init; }
 
     [JsonPropertyName("draft")]
     public bool? Draft { get; init; }
@@ -26995,7 +27187,7 @@ public record CheckRunWithSimpleCheckSuite
     /// GitHub apps are a new way to extend GitHub. They can be installed directly on organizations and user accounts and granted access to specific repositories. They come with granular permissions and built-in webhooks. GitHub apps are first class actors within GitHub.
     /// </summary>
     [JsonPropertyName("app")]
-    public required Integration App { get; init; }
+    public required Integration? App { get; init; }
 
     /// <summary>
     /// A suite of checks performed on the code of a given code change
@@ -27071,7 +27263,11 @@ public record CheckRunWithSimpleCheckSuite
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct WebhooksCodeScanningCommitOid(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<WebhooksCodeScanningCommitOid, string>))]
+public readonly record struct WebhooksCodeScanningCommitOid(string Value) : IOpenApiGeneratedTypeAlias<WebhooksCodeScanningCommitOid, string>
+{
+    public static WebhooksCodeScanningCommitOid Create(string value) => new(value);
+}
 
 /// <summary>
 /// The Git reference of the code scanning alert. When the action is `reopened_by_user` or `closed_by_user`, the event was triggered by the `sender` and this value will be empty.
@@ -27079,7 +27275,11 @@ public record struct WebhooksCodeScanningCommitOid(string Value);
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct WebhooksCodeScanningRef(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<WebhooksCodeScanningRef, string>))]
+public readonly record struct WebhooksCodeScanningRef(string Value) : IOpenApiGeneratedTypeAlias<WebhooksCodeScanningRef, string>
+{
+    public static WebhooksCodeScanningRef Create(string value) => new(value);
+}
 
 /// <summary>
 /// The pusher type for the event. Can be either `user` or a deploy key.
@@ -27087,7 +27287,11 @@ public record struct WebhooksCodeScanningRef(string Value);
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct WebhooksDeployPusherType(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<WebhooksDeployPusherType, string>))]
+public readonly record struct WebhooksDeployPusherType(string Value) : IOpenApiGeneratedTypeAlias<WebhooksDeployPusherType, string>
+{
+    public static WebhooksDeployPusherType Create(string value) => new(value);
+}
 
 /// <summary>
 /// The [`git ref`](https://docs.github.com/rest/git/refs#get-a-reference) resource.
@@ -27095,7 +27299,11 @@ public record struct WebhooksDeployPusherType(string Value);
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct WebhooksRef0(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<WebhooksRef0, string>))]
+public readonly record struct WebhooksRef0(string Value) : IOpenApiGeneratedTypeAlias<WebhooksRef0, string>
+{
+    public static WebhooksRef0 Create(string value) => new(value);
+}
 
 /// <summary>
 /// The [`deploy key`](https://docs.github.com/rest/deploy-keys/deploy-keys#get-a-deploy-key) resource.
@@ -27516,7 +27724,7 @@ public record WebhooksIssueComment
     /// GitHub apps are a new way to extend GitHub. They can be installed directly on organizations and user accounts and granted access to specific repositories. They come with granular permissions and built-in webhooks. GitHub apps are first class actors within GitHub.
     /// </summary>
     [JsonPropertyName("performed_via_github_app")]
-    public required Integration PerformedViaGithubApp { get; init; }
+    public required Integration? PerformedViaGithubApp { get; init; }
 
     [JsonPropertyName("reactions")]
     public required object Reactions { get; init; }
@@ -28491,7 +28699,7 @@ public record ProjectsV2Item
     /// The type of content tracked in a project item
     /// </summary>
     [JsonPropertyName("content_type")]
-    public required ProjectsV2ItemContentType ContentType { get; init; }
+    public required ContentType ContentType { get; init; }
 
     /// <summary>
     /// A GitHub user.
@@ -28599,7 +28807,11 @@ public record ProjectsV2IterationSetting
 /// <summary>
 /// Type alias for int.
 /// </summary>
-public record struct WebhooksNumber(int Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<WebhooksNumber, int>))]
+public readonly record struct WebhooksNumber(int Value) : IOpenApiGeneratedTypeAlias<WebhooksNumber, int>
+{
+    public static WebhooksNumber Create(int value) => new(value);
+}
 
 public record PullRequestWebhook : PullRequest
 {
@@ -29047,7 +29259,11 @@ public record WebhooksReview
 /// <summary>
 /// Type alias for string?.
 /// </summary>
-public record struct WebhooksNullableString(string? Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<WebhooksNullableString, string?>))]
+public readonly record struct WebhooksNullableString(string? Value) : IOpenApiGeneratedTypeAlias<WebhooksNullableString, string?>
+{
+    public static WebhooksNullableString Create(string? value) => new(value);
+}
 
 /// <summary>
 /// The [release](https://docs.github.com/rest/releases/releases/#get-a-release) object.
@@ -29344,7 +29560,7 @@ public record SecretScanningAlertWebhook
     /// The reason for resolving the alert.
     /// </summary>
     [JsonPropertyName("resolution")]
-    public SecretScanningAlertResolutionWebhook? Resolution { get; init; }
+    public SecretScanningAlertWebhookResolution? Resolution { get; init; }
 
     /// <summary>
     /// The time that the alert was resolved in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -29513,7 +29729,11 @@ public record WebhooksSponsorship
 /// <summary>
 /// Type alias for string.
 /// </summary>
-public record struct WebhooksEffectiveDate(string Value);
+[JsonConverter(typeof(OpenApiGeneratedTypeAliasJsonConverter<WebhooksEffectiveDate, string>))]
+public readonly record struct WebhooksEffectiveDate(string Value) : IOpenApiGeneratedTypeAlias<WebhooksEffectiveDate, string>
+{
+    public static WebhooksEffectiveDate Create(string value) => new(value);
+}
 
 public record WebhooksChanges8
 {
@@ -31600,7 +31820,7 @@ public record WebhookDeploymentCreated
     public required SimpleUser Sender { get; init; }
 
     [JsonPropertyName("workflow")]
-    public required WebhooksWorkflow Workflow { get; init; }
+    public required WebhooksWorkflow? Workflow { get; init; }
 
     [JsonPropertyName("workflow_run")]
     public required object? WorkflowRun { get; init; }
@@ -31845,7 +32065,7 @@ public record WebhookDeploymentReviewRequested
     public required RepositoryWebhooks Repository { get; init; }
 
     [JsonPropertyName("requestor")]
-    public required WebhooksUser Requestor { get; init; }
+    public required WebhooksUser? Requestor { get; init; }
 
     [JsonPropertyName("reviewers")]
     public required IReadOnlyList<object> Reviewers { get; init; }
@@ -33137,10 +33357,10 @@ public record WebhookInstallationRepositoriesAdded
     /// Describe whether all repositories have been selected or there's a selection involved
     /// </summary>
     [JsonPropertyName("repository_selection")]
-    public required WebhooksRepositorySelection RepositorySelection { get; init; }
+    public required InstallationRepositorySelection RepositorySelection { get; init; }
 
     [JsonPropertyName("requester")]
-    public required WebhooksUser Requester { get; init; }
+    public required WebhooksUser? Requester { get; init; }
 
     /// <summary>
     /// A GitHub user.
@@ -33199,10 +33419,10 @@ public record WebhookInstallationRepositoriesRemoved
     /// Describe whether all repositories have been selected or there's a selection involved
     /// </summary>
     [JsonPropertyName("repository_selection")]
-    public required WebhooksRepositorySelection RepositorySelection { get; init; }
+    public required InstallationRepositorySelection RepositorySelection { get; init; }
 
     [JsonPropertyName("requester")]
-    public required WebhooksUser Requester { get; init; }
+    public required WebhooksUser? Requester { get; init; }
 
     /// <summary>
     /// A GitHub user.
@@ -34563,7 +34783,7 @@ public record WebhookIssuesTyped
     /// The type of issue.
     /// </summary>
     [JsonPropertyName("type")]
-    public required IssueType Type { get; init; }
+    public required IssueType? Type { get; init; }
 
     /// <summary>
     /// A GitHub organization. Webhook payloads contain the `organization` property when the webhook is configured for an
@@ -34823,7 +35043,7 @@ public record WebhookIssuesUntyped
     /// The type of issue.
     /// </summary>
     [JsonPropertyName("type")]
-    public required IssueType Type { get; init; }
+    public required IssueType? Type { get; init; }
 
     /// <summary>
     /// A GitHub organization. Webhook payloads contain the `organization` property when the webhook is configured for an
@@ -35276,7 +35496,7 @@ public record WebhookMemberAdded
     public SimpleInstallation? Installation { get; init; }
 
     [JsonPropertyName("member")]
-    public required WebhooksUser Member { get; init; }
+    public required WebhooksUser? Member { get; init; }
 
     /// <summary>
     /// A GitHub organization. Webhook payloads contain the `organization` property when the webhook is configured for an
@@ -35328,7 +35548,7 @@ public record WebhookMemberEdited
     public SimpleInstallation? Installation { get; init; }
 
     [JsonPropertyName("member")]
-    public required WebhooksUser Member { get; init; }
+    public required WebhooksUser? Member { get; init; }
 
     /// <summary>
     /// A GitHub organization. Webhook payloads contain the `organization` property when the webhook is configured for an
@@ -35374,7 +35594,7 @@ public record WebhookMemberRemoved
     public SimpleInstallation? Installation { get; init; }
 
     [JsonPropertyName("member")]
-    public required WebhooksUser Member { get; init; }
+    public required WebhooksUser? Member { get; init; }
 
     /// <summary>
     /// A GitHub organization. Webhook payloads contain the `organization` property when the webhook is configured for an
@@ -35420,7 +35640,7 @@ public record WebhookMembershipAdded
     public SimpleInstallation? Installation { get; init; }
 
     [JsonPropertyName("member")]
-    public required WebhooksUser Member { get; init; }
+    public required WebhooksUser? Member { get; init; }
 
     /// <summary>
     /// A GitHub organization. Webhook payloads contain the `organization` property when the webhook is configured for an
@@ -35475,7 +35695,7 @@ public record WebhookMembershipRemoved
     public SimpleInstallation? Installation { get; init; }
 
     [JsonPropertyName("member")]
-    public required WebhooksUser Member { get; init; }
+    public required WebhooksUser? Member { get; init; }
 
     /// <summary>
     /// A GitHub organization. Webhook payloads contain the `organization` property when the webhook is configured for an
@@ -35904,7 +36124,7 @@ public record WebhookOrgBlockBlocked
     public required WebhookOrgBlockBlockedAction Action { get; init; }
 
     [JsonPropertyName("blocked_user")]
-    public required WebhooksUser BlockedUser { get; init; }
+    public required WebhooksUser? BlockedUser { get; init; }
 
     /// <summary>
     /// An enterprise on GitHub. Webhook payloads contain the `enterprise` property when the webhook is configured
@@ -35950,7 +36170,7 @@ public record WebhookOrgBlockUnblocked
     public required WebhookOrgBlockUnblockedAction Action { get; init; }
 
     [JsonPropertyName("blocked_user")]
-    public required WebhooksUser BlockedUser { get; init; }
+    public required WebhooksUser? BlockedUser { get; init; }
 
     /// <summary>
     /// An enterprise on GitHub. Webhook payloads contain the `enterprise` property when the webhook is configured
@@ -37879,7 +38099,7 @@ public record WebhookPullRequestAssigned
     public required WebhookIssuesAssignedAction Action { get; init; }
 
     [JsonPropertyName("assignee")]
-    public required WebhooksUser Assignee { get; init; }
+    public required WebhooksUser? Assignee { get; init; }
 
     /// <summary>
     /// An enterprise on GitHub. Webhook payloads contain the `enterprise` property when the webhook is configured
@@ -39316,7 +39536,7 @@ public record WebhookPush
     public required string After { get; init; }
 
     [JsonPropertyName("base_ref")]
-    public required WebhooksNullableString BaseRef { get; init; }
+    public required WebhooksNullableString? BaseRef { get; init; }
 
     /// <summary>
     /// The SHA of the most recent commit on `ref` before the push.
@@ -42824,7 +43044,7 @@ public record WebhookWorkflowRunCompleted
     public required SimpleUser Sender { get; init; }
 
     [JsonPropertyName("workflow")]
-    public required WebhooksWorkflow Workflow { get; init; }
+    public required WebhooksWorkflow? Workflow { get; init; }
 
     [JsonPropertyName("workflow_run")]
     public required object WorkflowRun { get; init; }
@@ -42873,7 +43093,7 @@ public record WebhookWorkflowRunInProgress
     public required SimpleUser Sender { get; init; }
 
     [JsonPropertyName("workflow")]
-    public required WebhooksWorkflow Workflow { get; init; }
+    public required WebhooksWorkflow? Workflow { get; init; }
 
     [JsonPropertyName("workflow_run")]
     public required object WorkflowRun { get; init; }
@@ -42922,7 +43142,7 @@ public record WebhookWorkflowRunRequested
     public required SimpleUser Sender { get; init; }
 
     [JsonPropertyName("workflow")]
-    public required WebhooksWorkflow Workflow { get; init; }
+    public required WebhooksWorkflow? Workflow { get; init; }
 
     [JsonPropertyName("workflow_run")]
     public required object WorkflowRun { get; init; }
