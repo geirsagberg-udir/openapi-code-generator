@@ -67,7 +67,13 @@ internal class TypeResolver
 
     public bool RequiresBinaryStreamTypeAliasJsonConverter(IOpenApiSchema schema)
     {
-        return IsTypeAlias(schema) && string.Equals(ResolveUnderlyingType(schema), "Stream", StringComparison.Ordinal);
+        string underlyingType = ResolveUnderlyingType(schema);
+        if (underlyingType.EndsWith('?'))
+        {
+            underlyingType = underlyingType.TrimEnd('?');
+        }
+
+        return IsTypeAlias(schema) && string.Equals(underlyingType, "Stream", StringComparison.Ordinal);
     }
 
     private string ResolveCore(IOpenApiSchema schema, bool nullable)
@@ -214,7 +220,8 @@ internal class TypeResolver
     {
         if (string.IsNullOrEmpty(referenceId))
         {
-            return "object";
+            string typeName = NameHelper.ToTypeName(referenceId, _options.ModelPrefix);
+            return nullable ? typeName + "?" : typeName;
         }
 
         if (_options.InlinePrimitiveTypeAliases &&

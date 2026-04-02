@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.OpenApi;
 
 namespace OpenApiCodeGenerator.Tests;
 
@@ -412,6 +413,50 @@ public class CSharpSchemaGeneratorTests
 
             Attachment? attachment = JsonSerializer.Deserialize<Attachment>("{\"content\":\"aGVsbG8=\"}");
             using var reader = new StreamReader(attachment!.Content.Value, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen: true);
+            Console.WriteLine(reader.ReadToEnd());
+            Console.WriteLine(JsonSerializer.Serialize(attachment));
+            """);
+
+        Assert.Equal("hello", lines[^2]);
+        Assert.Equal("{\"content\":\"aGVsbG8=\"}", lines[^1]);
+    }
+
+    [Fact]
+    public async Task Generate_FromSchemas_NullableBinaryTypeAlias_RoundTripsWithSystemTextJsonDefaults()
+    {
+        var schemas = new Dictionary<string, IOpenApiSchema>
+        {
+            ["NullableFileContent"] = new OpenApiSchema
+            {
+                Type = JsonSchemaType.String | JsonSchemaType.Null,
+                Format = "binary"
+            },
+            ["Attachment"] = new OpenApiSchema
+            {
+                Type = JsonSchemaType.Object,
+                Required = new HashSet<string> { "content" },
+                Properties = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["content"] = new OpenApiSchemaReference("NullableFileContent")
+                }
+            }
+        };
+
+        var generator = new CSharpSchemaGenerator(new GeneratorOptions
+        {
+            GenerateFileHeader = false,
+            Namespace = "GeneratedModels"
+        });
+
+        string generatedCode = generator.GenerateFromSchemas(schemas);
+        string[] lines = await GetSerializationLinesAsync(generatedCode, """
+            using System.IO;
+            using System.Text;
+            using System.Text.Json;
+            using GeneratedModels;
+
+            Attachment? attachment = JsonSerializer.Deserialize<Attachment>("{\"content\":\"aGVsbG8=\"}");
+            using var reader = new StreamReader(attachment!.Content.Value!, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen: true);
             Console.WriteLine(reader.ReadToEnd());
             Console.WriteLine(JsonSerializer.Serialize(attachment));
             """);
