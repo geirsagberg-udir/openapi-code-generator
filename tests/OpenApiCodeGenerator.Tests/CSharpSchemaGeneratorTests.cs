@@ -831,6 +831,62 @@ public class CSharpSchemaGeneratorTests
     }
 
     [Fact]
+    public async Task Generate_FromSchemas_WithIncludedSchemas_EmitsPropertyReferenceDependencies()
+    {
+        var schemas = new Dictionary<string, IOpenApiSchema>
+        {
+            ["User"] = new OpenApiSchema
+            {
+                Type = JsonSchemaType.Object,
+                Properties = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["address"] = new OpenApiSchemaReference("Address")
+                }
+            },
+            ["Address"] = new OpenApiSchema
+            {
+                Type = JsonSchemaType.Object,
+                Properties = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["city"] = new OpenApiSchema { Type = JsonSchemaType.String }
+                }
+            },
+            ["Scope"] = new OpenApiSchema
+            {
+                Type = JsonSchemaType.Object,
+                Properties = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["name"] = new OpenApiSchema { Type = JsonSchemaType.String }
+                }
+            },
+            ["Product"] = new OpenApiSchema
+            {
+                Type = JsonSchemaType.Object,
+                Properties = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["name"] = new OpenApiSchema { Type = JsonSchemaType.String }
+                }
+            }
+        };
+
+        var generator = new CSharpSchemaGenerator(new GeneratorOptions
+        {
+            GenerateFileHeader = false,
+            Namespace = "GeneratedModels",
+            IncludeSchemas = ["User", "Scope"]
+        });
+
+        string generatedCode = generator.GenerateFromSchemas(schemas);
+
+        Assert.Contains("public record User", generatedCode, StringComparison.Ordinal);
+        Assert.Contains("public record Address", generatedCode, StringComparison.Ordinal);
+        Assert.Contains("public record Scope", generatedCode, StringComparison.Ordinal);
+        Assert.DoesNotContain("public record Product", generatedCode, StringComparison.Ordinal);
+
+        await AssertGeneratedCodeCompilesAsync(generatedCode, implicitUsings: true);
+    }
+
+    [Fact]
     public void Generate_FromSchemas_WithUnknownIncludedSchema_ThrowsClearError()
     {
         var schemas = new Dictionary<string, IOpenApiSchema>

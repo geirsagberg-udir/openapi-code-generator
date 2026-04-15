@@ -77,12 +77,12 @@ public sealed class GeneratorOptions
         {
             foreach (string schemaName in includedSchemas)
             {
-                if (string.IsNullOrWhiteSpace(schemaName))
+                if (!string.IsNullOrWhiteSpace(schemaName))
                 {
-                    throw new ArgumentException(
-                        "IncludeSchemas must not contain null or blank schema names.",
-                        nameof(IncludeSchemas));
+                    continue;
                 }
+
+                throw new ArgumentException("IncludeSchemas must not contain null or blank schema names.", nameof(IncludeSchemas));
             }
         }
     }

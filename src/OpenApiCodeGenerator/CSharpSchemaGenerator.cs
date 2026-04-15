@@ -126,8 +126,7 @@ public sealed class CSharpSchemaGenerator
         if (missingSchemaNames.Count > 0)
         {
             string missingNames = string.Join(", ", missingSchemaNames.OrderBy(name => name, StringComparer.Ordinal));
-            throw new InvalidOperationException(
-                $"IncludeSchemas references schema(s) not found in the document: {missingNames}");
+            throw new InvalidOperationException($"IncludeSchemas references schema(s) not found in the provided schemas: {missingNames}");
         }
 
         return schemas
@@ -188,10 +187,6 @@ public sealed class CSharpSchemaGenerator
                 CollectReferencedSchemaNames(subSchema, pendingSchemaNames);
             }
         }
-
-        // TODO: traverse schema.Not once the generator emits anything for it. Today
-        // TypeResolver/CSharpCodeEmitter ignore `not`, so dependencies reachable only
-        // through it would be dead code in the output.
 
         if (schema.Discriminator?.Mapping is { Count: > 0 } discriminatorMapping)
         {
